@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { GestureResponderEvent } from 'react-native';
 import { Text, View, SafeAreaView, ScrollView, Keyboard,
     KeyboardAvoidingView, Platform, Pressable, StatusBar } from 'react-native';
-import {SvgXml, SvgUri} from "react-native-svg";
+import {SvgXml} from "react-native-svg";
 import {logo, googleIcon, facebookIcon} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton";
 import SocialLoginButton from "@/components/SocialLoginButton";
@@ -21,11 +20,16 @@ interface ErrorsType {
 interface SigninProps {
     navigation?: any; 
 }
+interface UserData {
+    results: {
+        token: string;
+    };
+}
 const Signin: React.FC<SigninProps> = ({}) => {
     const [inputs, setInputs] = useState<InputsType>({});
-    const [msg, setMsg] = useState('');
+    const [msg, setMsg] = useState<string>('');
     const [errors, setErrors] = useState< ErrorsType>({});
-    const [isLoading, setLoading] = useState(false);
+    const [isLoading, setLoading] = useState<boolean>(false);
 
     const handleInputs = (name: string) => {
         return (value: string) => {
@@ -43,11 +47,6 @@ const Signin: React.FC<SigninProps> = ({}) => {
     }
     const handleMessage = (message: string) => setMsg(message);
 
-    interface LoginResponseData {
-        results: {
-            token: string;
-        };
-    }
     const Login = async () => {
         Keyboard.dismiss();
         setLoading(true);
@@ -57,6 +56,8 @@ const Signin: React.FC<SigninProps> = ({}) => {
             login(inputs.email, inputs.password)
             .then(async(res: AxiosResponse) => {
                 //setLoading(false);
+                //const user: UserData = res.data?.results;
+                console.log(res.data?.results.token);
                 await storeData("user_token", res.data?.results.token);
                 router.push('/dashboard');
             }).catch((error: AxiosError<any>) => {

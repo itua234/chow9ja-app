@@ -1,6 +1,6 @@
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
-import {SvgXml, SvgUri} from "react-native-svg";
+import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton"
 import CustomInput from "@/components/CustomInput"
@@ -13,14 +13,11 @@ interface InputsType {
 interface ErrorsType {
     [key: string]: string;
 }
-interface ForgotPasswordProps {
-    navigation?: any; 
-}
-const ForgetPassword: React.FC< ForgotPasswordProps> = ({}) => {
+const ForgetPassword = () => {
     const [inputs, setInputs] = useState<InputsType>({email: ""});
     const [msg, setMsg] = useState('');
     const [errors, setErrors] = useState<ErrorsType>({});
-    const [touched, setTouched] = useState<{[key: string]: boolean}>({});
+    //const [touched, setTouched] = useState<{[key: string]: boolean}>({});
     const [isLoading, setLoading] = useState(false);
 
     const handleInputs = (name: string) => {
@@ -48,7 +45,6 @@ const ForgetPassword: React.FC< ForgotPasswordProps> = ({}) => {
         };
         const errors:  ErrorsType = validate(inputs, rules);
         Object.keys(errors).length > 0
-        //? (console.log('Validation errors:', errors))
         ? (console.log('Validation errors:', errors), errors.email && handleErrors(errors.email, 'email'))
         : console.log('All inputs are valid!'); // Proceed with form submission logic, e.g., send data to an API
 

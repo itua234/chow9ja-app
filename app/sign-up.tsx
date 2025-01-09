@@ -20,19 +20,16 @@ interface InputsType {
 interface ErrorsType {
     [key: string]: string;
 }
-interface SignupProps {
-    navigation?: any; 
-}
 type Country = {
     code: string;        // Country code (e.g., 'US')
     dial_code: string;   // Dial code (e.g., '+1')
     name: string;       // Optional country name
 };
-const Signup: React.FC<SignupProps> = ({}) => {
+const Signup = () => {
     const [inputs, setInputs] = useState<InputsType>({});
-    const [msg, setMsg] = useState('');
+    const [msg, setMsg] = useState<string>('');
     const [errors, setErrors] = useState< ErrorsType>({});
-    const [isLoading, setLoading] = useState(false);
+    const [isLoading, setLoading] = useState<boolean>(false);
     //const [countryCode, setCountryCode] = useState('NG');
     const [callingCode, setCallingCode] = useState<string>('+234');
     const [flagUrl, setFlagUrl] = useState<string>('https://flagcdn.com/w320/ng.png'); // Default flag
