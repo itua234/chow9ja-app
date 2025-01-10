@@ -22,6 +22,8 @@ export interface Transaction {
         firstname: string;
         lastname: string;
     };
+    status: string;
+    description: string;
 }
 
 // DashboardActivityProps

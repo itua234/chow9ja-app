@@ -47,7 +47,22 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ data }) => {
                 </View>
                 <View className="space-y-1 flex-column items-end">
                     <Text className="font-primary text-[17px] font-semibold">${data.amount.toLocaleString()}</Text>
-                    <Text className="text-[13px] font-primary text-[gray]">{data.type === "CREDIT" ? "Sent" : "Received"}</Text>
+                    {/* <Text className="text-[13px] font-primary text-[gray]">{data.type === "CREDIT" ? "Sent" : "Received"}</Text> */}
+                    <View className={`px-2 py-1 rounded-md ${
+                        data.status == 'SUCCESSFUL' ? 'bg-[#DCFCE7]' :
+                        data.status == 'PENDING' ? 'bg-[#FEF9C3]' :
+                        data.status == 'REVERSED' ? 'bg-[#FEF9C3]' :
+                        data.status == 'FAILED' ? 'bg-[#FEE2E2]' : 'bg-gray-100'
+                    }`}>
+                        <Text className={`text-xs font-medium capitalize ${
+                            data.status == 'SUCCESSFUL' ? 'text-[#166534]' :
+                            data.status == 'PENDING' ? 'text-[#854D0E]' :
+                            data.status == 'REVERSED' ? 'text-[#854D0E]' :
+                            data.status == 'FAILED' ? 'text-[#991B1B]' : 'text-gray-700'
+                        }`}>
+                            {data.status}
+                        </Text>
+                    </View>
                 </View>
             </View>
         </Pressable>

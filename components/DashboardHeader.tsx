@@ -4,7 +4,7 @@ import {SvgXml, SvgUri} from "react-native-svg";
 import {bell, headphones, active_bell} from '@/util/svg';
 import useSocket from '@/hooks/useSocket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {router} from "expo-router";
 
 const DashboardHeader = () => {
     // const { 
@@ -82,7 +82,9 @@ const DashboardHeader = () => {
             </View>
             <View className="flex-row items-center justify-center">
                 <View className="w-[40px] h-[40px] rounded-full bg-white items-center justify-center ml-[10px]">
-                    <SvgXml xml={notificationCount > 0 ? active_bell : bell} width="30" height="30" />
+                    <Pressable onPress={() => router.push('/notifications')}>
+                        <SvgXml xml={notificationCount > 0 ? active_bell : bell} width="30" height="30" />
+                    </Pressable>
                 </View>
             </View>
         </View>
