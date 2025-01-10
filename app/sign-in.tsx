@@ -21,9 +21,22 @@ interface SigninProps {
     navigation?: any; 
 }
 interface UserData {
-    results: {
-        token: string;
-    };
+    id: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+    phone: string;
+    password: string;
+    googleId: string | null;
+    verified: boolean;
+    notificationsEnabled: boolean;
+    email_verified_at: string;
+    token: string;
+}
+interface LoginResponse {
+    message: string;
+    results: UserData;
+    error: boolean;
 }
 const Signin: React.FC<SigninProps> = ({}) => {
     const [inputs, setInputs] = useState<InputsType>({});
@@ -85,12 +98,12 @@ const Signin: React.FC<SigninProps> = ({}) => {
 
     return (
         <SafeAreaView className="flex-1 bg-white pt-[20px]">
-            <StatusBar
+            {/* <StatusBar
                 animated={true}
                 backgroundColor="#61dafb"
                 networkActivityIndicatorVisible={false}
                 hidden={false}
-            />
+            /> */}
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"

@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import '../global.css';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -50,7 +51,13 @@ export default function RootLayout() {
         <Stack.Screen name="dashboard" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="auto" />
+      {/* <StatusBar style="auto" /> */}
+      <StatusBar
+          animated={true}
+          translucent={false}
+          backgroundColor="white"
+          networkActivityIndicatorVisible={true}
+      />
     </ThemeProvider>
   );
 }

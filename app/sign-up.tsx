@@ -63,7 +63,6 @@ const Signup = () => {
     useEffect(() => {
         const fetchCountries = async () => {
             const response = await get_flags();
-            console.log(response.data);
             setCountries(response?.data);
         };
         fetchCountries();
@@ -124,12 +123,12 @@ const Signup = () => {
 
     return (
         <SafeAreaView className="flex-1 bg[#0D0D1B] bg-white pt-[20px]">
-            <StatusBar
+            {/* <StatusBar
                 animated={true}
                 backgroundColor="#61dafb"
                 networkActivityIndicatorVisible={false}
                 hidden={false}
-            />
+            /> */}
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"
@@ -231,7 +230,8 @@ const Signup = () => {
                             onSelect={onSelectCountry}
                             searchPlaceholder="Search country..."
                             searchKeys={['name', 'code']} // Search by both name and code
-                            renderItem={renderCountry}
+                            //renderItem={renderCountry}
+                            renderItem={countries.length ? renderCountry : () => <Text>Loading...</Text>}
                         />
 
                         <View className="mt-auto pb-4">

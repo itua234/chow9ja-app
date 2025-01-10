@@ -53,12 +53,12 @@ const ForgetPassword = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-white pt-[20px]">
-            <StatusBar
+            {/* <StatusBar
                 animated={true}
                 backgroundColor="#61dafb"
                 networkActivityIndicatorVisible={false}
                 hidden={false}
-            />
+            /> */}
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"

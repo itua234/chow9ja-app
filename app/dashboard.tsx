@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect, useRef} from 'react';
 import { Text, View, RefreshControl, FlatList, Platform, Pressable, ToastAndroid, StyleSheet, Share, Linking } from 'react-native';
-import {SvgXml, SvgUri} from "react-native-svg";
-import {eye, eye_off, copy, arrow_up, arrow_down, ellipsis, plus} from '../util/svg';
+import {SvgXml} from "react-native-svg";
+import {eye, eye_off, copy, arrow_up, arrow_down, ellipsis, plus, wallet} from '../util/svg';
 import TransactionCard from "@/components/TransactionCard"
 import QuickActions from "../components/QuickActions"
 import DashboardHeader from "@/components/DashboardHeader"
@@ -72,12 +72,25 @@ export const DashboardActivity = ({
                     </Pressable>
                 </View>
             </View>
-            <FlatList
-                data={transactions}
-                renderItem={({item}) => <TransactionCard data={item} />}
-                keyExtractor={(item) => item.id.toString()}
-                scrollEnabled={false}
-            />
+            {transactions.length === 0 ? (
+                // Render this view when transactions array is empty
+                <View className="flex-1 items-center justify-center mt-[50px]">
+                    <SvgXml xml={wallet} width="35" height="35"></SvgXml>
+                    {/* <View className="w-[80px] h-[80px] rounded-full mb-[10px] bg-primary">
+                         <SvgXml xml={arrow_up} width="24" height="24"></SvgXml>
+                    </View> */}
+                    <Text className="text-[16px] font-primary text-gray-500">
+                        No transactions yet.
+                    </Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={transactions}
+                    renderItem={({item}) => <TransactionCard data={item} />}
+                    keyExtractor={(item) => item.id.toString()}
+                    scrollEnabled={false}
+                />
+            )}
         </>
     );
 };
