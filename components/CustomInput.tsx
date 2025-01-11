@@ -80,7 +80,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
         <View className="">
             {label && (
                 <Text className="text-[#1A1C1E] mb-2 mt-[7.5px] font-primary">
-                {label}
+                    {label}
                 </Text>
             )}
             <Animated.View 
