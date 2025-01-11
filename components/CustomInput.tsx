@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, TextInputProps } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, TextInputProps, Animated } from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {eye, eye_off} from "@/util/svg";
 
@@ -7,7 +7,8 @@ import {eye, eye_off} from "@/util/svg";
 // type KeyboardType = 'email-address' | 'numeric' | 'phone-pad' | 'default';
 // type AutoCapitalizeType = 'none' | 'sentences' | 'words' | 'characters';
 
-type CustomInputProps = Omit<TextInputProps, 'value' | 'onChangeText'> & {
+//type CustomInputProps = Omit<TextInputProps, 'value' | 'onChangeText'> & {
+type CustomInputProps = TextInputProps & {
     label?: string;
     type?: 'text' | 'email' | 'password' | 'number' | 'phone';  // Input type
     value: string;
@@ -15,6 +16,11 @@ type CustomInputProps = Omit<TextInputProps, 'value' | 'onChangeText'> & {
     placeholder?: string;
     className?: string;
     error?: string;
+    name?: string;
+    focusedInput?: string | null;
+    animatedBorderColor?: Animated.AnimatedInterpolation<string>;
+    onFocus?: () => void;
+    onBlur?: () => void;
 }
 const CustomInput: React.FC<CustomInputProps> = ({ 
     label, 
@@ -24,6 +30,11 @@ const CustomInput: React.FC<CustomInputProps> = ({
     placeholder, 
     className,
     error,
+    name,
+    focusedInput,
+    animatedBorderColor,
+    onFocus,
+    onBlur,
     ...props
 }) => {
     const [seePassword, setSeePassword] = useState<boolean>(false);
@@ -56,12 +67,12 @@ const CustomInput: React.FC<CustomInputProps> = ({
         if (type !== 'password') return null;
 
         return (
-        <TouchableOpacity 
-            onPress={() => setSeePassword(!seePassword)} 
-            className="pr-4"
-        >
-            {<SvgXml xml={seePassword ? eye : eye_off} width="24" height="24"></SvgXml>}
-        </TouchableOpacity>
+            <TouchableOpacity 
+                onPress={() => setSeePassword(!seePassword)} 
+                className="pr-4"
+            >
+                {<SvgXml xml={seePassword ? eye : eye_off} width="24" height="24"></SvgXml>}
+            </TouchableOpacity>
         );
     };
 
@@ -72,18 +83,27 @@ const CustomInput: React.FC<CustomInputProps> = ({
                 {label}
                 </Text>
             )}
-            <View className={`flex-row items-center border-2 border-[#EDF1F3] rounded-md ${className}`}>
+            <Animated.View 
+            className={`
+                flex-row 
+                items-center 
+                border-2 
+                rounded-md ${className}
+            `}
+            style={{ borderColor: animatedBorderColor || '#EDF1F3' }}>
                 <TextInput
                     className="flex-1 py-5 px-[15px] font-primary text-[#1A1C1E] text-[16px]"
                     placeholder={placeholder}
                     placeholderTextColor={"#6C7278"}
                     value={value}
                     onChangeText={onChangeText}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
                     {...getInputProps()}
                     {...props}
                 />
                 {renderIcon()}
-            </View>
+            </Animated.View>
             {error && <Text className="text-[16px] text-red-500 mt-1 font-primary">{error}</Text>}
         </View>
     );

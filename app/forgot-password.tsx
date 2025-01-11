@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
+import React, {useRef, useState} from 'react';
+import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar, Animated } from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton"
@@ -35,6 +35,31 @@ const ForgetPassword = () => {
         }));
     }
     const handleMessage = (message: string) => setMsg(message);
+
+    const animatedBorderColor = useRef(new Animated.Value(0)).current;
+    const [focusedInput, setFocusedInput] = useState<string | null>(null); // Track focused input
+    // Handle focus and blur animations
+    const handleFocus = (name: string) => {
+        setFocusedInput(name);
+        Animated.timing(animatedBorderColor, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+    };
+    const handleBlur = () => {
+        setFocusedInput(null);
+        Animated.timing(animatedBorderColor, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+    };
+    // Interpolated border color based on focus
+    const borderColor = animatedBorderColor.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['#EDF1F3', '#121212'] // Default and focused colors
+    });
 
     const Submit = async () => {
         setLoading(true);
@@ -79,6 +104,13 @@ const ForgetPassword = () => {
                             onChangeText={handleInputs("email")}
                             placeholder="Enter your email"
                             error={errors.email}
+                            name={"email"}
+                            focusedInput={focusedInput} // Check if this input is focused
+                            animatedBorderColor={borderColor}
+                            // onFocus={() => setFocusedInput("email")} // Set focused input
+                            // onBlur={() => setFocusedInput(null)} // Clear focused input
+                            onFocus={() => handleFocus("email")} // Set focused input
+                            onBlur={handleBlur} // Clear focused input
                         />
                         
                         <PrimaryButton 
