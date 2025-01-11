@@ -1,10 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, Image, Dimensions, Pressable, StyleSheet, FlatList } from "react-native";
+import { View, Text, Image, Dimensions, Pressable, StyleSheet, FlatList, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { router } from "expo-router";
+import * as Haptics from 'expo-haptics';
 
-const { width: screenWidth } = Dimensions.get("window");
-
-const slides = [
+interface Slide {
+    title: string;
+    description: string;
+    image: any; // Use `ImageSourcePropType` if you want stricter typing
+}
+const slides: Slide[] = [
     {
         title: "Welcome to Our App",
         description: "Discover amazing features to enhance your productivity.",
@@ -24,16 +28,17 @@ const slides = [
 
 export default function Splash() {
     const [activeSlide, setActiveSlide] = useState(0);
+    const { width: screenWidth } = Dimensions.get("window");
 
-    const handleScroll = (event) => {
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const scrollPosition = event.nativeEvent.contentOffset.x;
         const currentIndex = Math.round(scrollPosition / screenWidth);
         setActiveSlide(currentIndex);
     };
 
-    const renderSlide = ({ item }) => (
+    const renderSlide = ({ item }: { item: Slide }) => (
         <View className="justify-center items-center px-[20px]" style={{ width: screenWidth }}>
-            <Image source={item.image} style={styles.image} />
+            <Image source={item.image} className="w-[300px] h-[300px] mb-[20px] object-contain" />
             <Text className="text-center font-primary text-[24px] mb-[10px] text-[#333]">{item.title}</Text>
             <Text className="text-center font-primary text-[16px] mb-[10px] text-[#666]">{item.description}</Text>
         </View>
@@ -76,7 +81,10 @@ export default function Splash() {
                 flex 
                 items-center 
                 justify-center" 
-                onPress={() => router.push("/sign-in")}>
+                onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+                    router.push("/sign-in");
+                 }}>
                     <Text className="
                         text-center 
                         text-white 
@@ -94,7 +102,10 @@ export default function Splash() {
                 flex 
                 items-center 
                 justify-center" 
-                onPress={() => router.push("/sign-up")}>
+                onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    router.push("/sign-up");
+                 }}>
                     <Text className="
                         text-center 
                         text-white 
@@ -112,17 +123,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-    },
-    slide: {
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: 20,
-    },
-    image: {
-        width: 300,
-        height: 300,
-        resizeMode: "contain",
-        marginBottom: 20,
     },
     dot: {
         width: 10,
