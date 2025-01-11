@@ -26,6 +26,29 @@ const ForgetPassword = () => {
                 ...prevInputs,
                 [name]: value
             }));
+            // const rules = {
+            //     [name]: name === 'email' ? 'required|email' : 'required'
+            // };
+            const rules = {
+                [name]: 
+                    name === "email" ? "required|email" : 
+                    name === "password" ? "required|min:6" : 
+                    name === "phone" ? "required|numeric|min:10|max:15" : 
+                    "required", // Default to "required" for all other fields
+            };
+            const fieldErrors:  ErrorsType = validate({ [name]: value }, rules);
+            const hasError = !!fieldErrors[name];
+            // Clear error if input becomes valid, or set new error
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                [name]: fieldErrors[name] || ''
+            }));
+            // Update border color animation
+            Animated.timing(animatedBorderColor, {
+                toValue: hasError ? 2 : focusedInput === name ? 1 : 0, // Error: 2, Focused: 1, Default: 0
+                duration: 300,
+                useNativeDriver: false,
+            }).start();
         };
     };
     const handleErrors = (error: string, input: string) => {
@@ -47,7 +70,7 @@ const ForgetPassword = () => {
             useNativeDriver: false,
         }).start();
     };
-    const handleBlur = () => {
+    const handleBlur = (name: string) => {
         setFocusedInput(null);
         Animated.timing(animatedBorderColor, {
             toValue: 0,
@@ -57,21 +80,21 @@ const ForgetPassword = () => {
     };
     // Interpolated border color based on focus
     const borderColor = animatedBorderColor.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['#EDF1F3', '#121212'] // Default and focused colors
+        inputRange: [0, 1, 2], // 0 = default, 1 = focus, 2 = error
+        outputRange: ['#EDF1F3', '#121212', 'red'], // Default, focused, error
     });
 
     const Submit = async () => {
         setLoading(true);
         setErrors({});
         setMsg('');
-        const rules = {
-            email: 'required|email'
-        };
-        const errors:  ErrorsType = validate(inputs, rules);
-        Object.keys(errors).length > 0
-        ? (console.log('Validation errors:', errors), errors.email && handleErrors(errors.email, 'email'))
-        : console.log('All inputs are valid!'); // Proceed with form submission logic, e.g., send data to an API
+        // const rules = {
+        //     email: 'required|email'
+        // };
+        // const errors:  ErrorsType = validate(inputs, rules);
+        // Object.keys(errors).length > 0
+        // ? (console.log('Validation errors:', errors), errors.email && handleErrors(errors.email, 'email'))
+        // : console.log('All inputs are valid!'); // Proceed with form submission logic, e.g., send data to an API
 
         setLoading(false);
     }
@@ -106,11 +129,23 @@ const ForgetPassword = () => {
                             error={errors.email}
                             name={"email"}
                             focusedInput={focusedInput} // Check if this input is focused
-                            animatedBorderColor={borderColor}
-                            // onFocus={() => setFocusedInput("email")} // Set focused input
-                            // onBlur={() => setFocusedInput(null)} // Clear focused input
+                            animatedBorderColor={focusedInput === "email" ? borderColor : "#EDF1F3"}
                             onFocus={() => handleFocus("email")} // Set focused input
-                            onBlur={handleBlur} // Clear focused input
+                            onBlur={() => handleBlur("email")} // Clear focused input
+                        />
+
+                        <CustomInput 
+                            label="Password"
+                            type="text"
+                            value={inputs.password}
+                            onChangeText={handleInputs("password")}
+                            placeholder="Enter your password"
+                            error={errors.password}
+                            name={"password"}
+                            focusedInput={focusedInput} // Check if this input is focused
+                            animatedBorderColor={focusedInput === "password" ? borderColor : "#EDF1F3"}
+                            onFocus={() => handleFocus("password")} // Set focused input
+                            onBlur={() => handleBlur("password")} // Clear focused input
                         />
                         
                         <PrimaryButton 

@@ -13,6 +13,7 @@ import {register, get_flags} from "../services/api"
 import {storeData} from "@/util/helper"
 import { AxiosResponse, AxiosError } from 'axios';
 import {router} from "expo-router";
+import * as Haptics from 'expo-haptics';
 
 interface InputsType {
     [key: string]: string;
@@ -181,7 +182,10 @@ const Signup = () => {
                                 <View className={`flex-row items-center border-2 border-[#EDF1F3] rounded-md`}>
                                     <TouchableOpacity 
                                         className="flex-row items-center justify-center w-[100px] h-full border-r border-[#EDF1F3] "
-                                        onPress={() => setShowCountryPicker(!showCountryPicker)}
+                                        onPress={async () => {
+                                            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+                                            setShowCountryPicker(!showCountryPicker)
+                                        }}
                                     >
                                         <View className="flex-row items-center">
                                             <Image className="w-[30px] h-[30px] rounded-full"

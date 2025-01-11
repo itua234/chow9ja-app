@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { View, Text, Image, Dimensions, Pressable, StyleSheet, FlatList, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { router } from "expo-router";
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from "expo-linear-gradient";
+import AnimatedTextInput from "@/components/AnimatedTextInput";
 
 interface Slide {
     title: string;
@@ -29,6 +31,7 @@ const slides: Slide[] = [
 export default function Splash() {
     const [activeSlide, setActiveSlide] = useState(0);
     const { width: screenWidth } = Dimensions.get("window");
+    const [text, setText] = useState('');
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const scrollPosition = event.nativeEvent.contentOffset.x;
@@ -46,7 +49,7 @@ export default function Splash() {
 
     return (
         <View style={styles.container}>
-            <FlatList
+            {/* <FlatList
                 data={slides}
                 renderItem={renderSlide}
                 keyExtractor={(item, index) => index.toString()}
@@ -56,7 +59,6 @@ export default function Splash() {
                 onScroll={handleScroll}
             />
 
-            {/* Pagination Dots */}
             <View className="flex-row justify-center my-[10px]">
                 {slides.map((_, index) => (
                     <View
@@ -68,7 +70,17 @@ export default function Splash() {
                         ]}
                     />
                 ))}
-            </View>
+            </View> */}
+
+            <AnimatedTextInput
+                placeholder="Email"
+                value={text}
+                onChangeText={setText}
+                // Optional custom styles
+                containerStyle={{ marginHorizontal: 16 }}
+                inputStyle={{ borderColor: '#007AFF' }}
+                labelStyle={{ color: '#007AFF' }}
+            />
 
             {/* Buttons */}
             <View className="p-[20px]">
@@ -115,6 +127,13 @@ export default function Splash() {
                         " >Sign Up</Text>
                 </Pressable>
             </View>
+
+            {/* <LinearGradient
+                // Button Linear Gradient
+                colors={['#4c669f', '#3b5998', '#192f6a']}
+                style={styles.button}>
+                <Text style={styles.text}>Sign in with Facebook</Text>
+            </LinearGradient> */}
         </View>
     );
 }
@@ -136,5 +155,15 @@ const styles = StyleSheet.create({
     },
     inactiveDot: {
         backgroundColor: "#ccc",
-    }
+    },
+    button: {
+        padding: 15,
+        alignItems: 'center',
+        borderRadius: 5,
+      },
+      text: {
+        backgroundColor: 'transparent',
+        fontSize: 15,
+        color: '#fff',
+      },
 });

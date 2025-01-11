@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Text, View, SafeAreaView, ScrollView, Keyboard,
-    KeyboardAvoidingView, Platform, Pressable, StatusBar } from 'react-native';
+    KeyboardAvoidingView, Platform, Pressable, StatusBar, 
+    Animated} from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {logo, googleIcon, facebookIcon} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton";
@@ -10,6 +11,7 @@ import {login} from "@/services/api"
 import {storeData} from "@/util/helper"
 import { AxiosResponse, AxiosError } from 'axios';
 import {router} from "expo-router";
+import {validate} from "@/util/validator"
 
 interface InputsType {
     [key: string]: string;
@@ -50,6 +52,22 @@ const Signin: React.FC<SigninProps> = ({}) => {
                 ...prevInputs,
                 [name]: value
             }));
+            const rules = {
+                [name]: name === 'email' ? 'required|email' : 'required'
+            };
+            const fieldErrors:  ErrorsType = validate({ [name]: value }, rules);
+            const hasError = !!fieldErrors[name];
+            // Clear error if input becomes valid, or set new error
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                [name]: fieldErrors[name] || ''
+            }));
+            // Update border color animation
+            Animated.timing(animatedBorderColor, {
+                toValue: hasError ? 2 : focusedInput === name ? 1 : 0, // Error: 2, Focused: 1, Default: 0
+                duration: 300,
+                useNativeDriver: false,
+            }).start();
         };
     };
     const handleErrors = (error: string, input: string) => {
@@ -59,6 +77,31 @@ const Signin: React.FC<SigninProps> = ({}) => {
         }));
     }
     const handleMessage = (message: string) => setMsg(message);
+
+    const animatedBorderColor = useRef(new Animated.Value(0)).current;
+    const [focusedInput, setFocusedInput] = useState<string | null>(null); // Track focused input
+    // Handle focus and blur animations
+    const handleFocus = (name: string) => {
+        setFocusedInput(name);
+        Animated.timing(animatedBorderColor, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+    };
+    const handleBlur = (name: string) => {
+        setFocusedInput(null);
+        Animated.timing(animatedBorderColor, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+    };
+    // Interpolated border color based on focus
+    const borderColor = animatedBorderColor.interpolate({
+        inputRange: [0, 1, 2], // 0 = default, 1 = focus, 2 = error
+        outputRange: ['#EDF1F3', '#121212', 'red'], // Default, focused, error
+    });
 
     const Login = async () => {
         Keyboard.dismiss();
@@ -131,6 +174,11 @@ const Signin: React.FC<SigninProps> = ({}) => {
                                 onChangeText={handleInputs("email")}
                                 placeholder="Enter your email"
                                 error={errors.email}
+                                name="email"
+                                focusedInput={focusedInput} // Check if this input is focused
+                                animatedBorderColor={focusedInput === "email" ? borderColor : "#EDF1F3"}
+                                onFocus={() => handleFocus("email")} // Set focused input
+                                onBlur={() => handleBlur("email")} // Clear focused input
                             />
                             
                             <CustomInput 
@@ -140,6 +188,11 @@ const Signin: React.FC<SigninProps> = ({}) => {
                                 onChangeText={handleInputs("password")}
                                 placeholder="Enter your password"
                                 error={errors.password}
+                                name="password"
+                                focusedInput={focusedInput} // Check if this input is focused
+                                animatedBorderColor={focusedInput === "password" ? borderColor : "#EDF1F3"}
+                                onFocus={() => handleFocus("password")} // Set focused input
+                                onBlur={() => handleBlur("password")} // Clear focused input
                             />
                             
                             <PrimaryButton 

@@ -18,7 +18,7 @@ type CustomInputProps = TextInputProps & {
     error?: string;
     name?: string;
     focusedInput?: string | null;
-    animatedBorderColor?: Animated.AnimatedInterpolation<string>;
+    animatedBorderColor?: Animated.AnimatedInterpolation<string> | string;
     onFocus?: () => void;
     onBlur?: () => void;
 }
