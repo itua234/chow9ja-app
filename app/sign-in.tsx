@@ -65,7 +65,7 @@ const Signin: React.FC<SigninProps> = ({}) => {
             // Update border color animation
             Animated.timing(animatedBorderColor, {
                 toValue: hasError ? 2 : focusedInput === name ? 1 : 0, // Error: 2, Focused: 1, Default: 0
-                duration: 300,
+                duration: 100,
                 useNativeDriver: false,
             }).start();
         };
@@ -85,7 +85,7 @@ const Signin: React.FC<SigninProps> = ({}) => {
         setFocusedInput(name);
         Animated.timing(animatedBorderColor, {
             toValue: 1,
-            duration: 300,
+            duration: 100,
             useNativeDriver: false,
         }).start();
     };
@@ -93,7 +93,7 @@ const Signin: React.FC<SigninProps> = ({}) => {
         setFocusedInput(null);
         Animated.timing(animatedBorderColor, {
             toValue: 0,
-            duration: 300,
+            duration: 100,
             useNativeDriver: false,
         }).start();
     };
@@ -110,11 +110,9 @@ const Signin: React.FC<SigninProps> = ({}) => {
         setMsg('');
         setTimeout(() => {
             login(inputs.email, inputs.password)
-            .then(async(res: AxiosResponse) => {
-                //setLoading(false);
-                //const user: UserData = res.data?.results;
-                console.log(res.data?.results.token);
-                await storeData("user_token", res.data?.results.token);
+            .then(async (res: AxiosResponse<LoginResponse>) => {
+                const user: UserData = res.data?.results;
+                await storeData("user_token", user?.token);
                 router.push('/dashboard');
             }).catch((error: AxiosError<any>) => {
                 setErrors({});
@@ -141,12 +139,13 @@ const Signin: React.FC<SigninProps> = ({}) => {
 
     return (
         <SafeAreaView className="flex-1 bg-white pt-[20px]">
-            {/* <StatusBar
+            <StatusBar
                 animated={true}
                 backgroundColor="#61dafb"
-                networkActivityIndicatorVisible={false}
+                barStyle="dark-content" // Ensures black text for iOS
+                networkActivityIndicatorVisible={true}
                 hidden={false}
-            /> */}
+            />
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"

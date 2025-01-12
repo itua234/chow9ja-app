@@ -67,7 +67,7 @@ export const verify_code = (email, code, purpose) => {
 }
 
 export const forgot_password = (email) => {
-    return client.post("auth/signin", { email }, { useAppToken: true });
+    return client.get(`auth/email/${email}/password_reset/send-code`, { useAppToken: true });
 }
 
 export const get_flags = () => {

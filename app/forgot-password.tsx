@@ -1,10 +1,12 @@
 import React, {useRef, useState} from 'react';
-import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar, Animated } from 'react-native';
+import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar, Animated, Keyboard } from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton"
 import CustomInput from "@/components/CustomInput"
-import {login} from "@/services/api"
+import {forgot_password} from "@/services/api"
+import { AxiosResponse, AxiosError } from 'axios';
+import {router} from "expo-router";
 import {validate} from "@/util/validator"
 
 interface InputsType {
@@ -17,8 +19,8 @@ const ForgetPassword = () => {
     const [inputs, setInputs] = useState<InputsType>({email: ""});
     const [msg, setMsg] = useState('');
     const [errors, setErrors] = useState<ErrorsType>({});
-    //const [touched, setTouched] = useState<{[key: string]: boolean}>({});
     const [isLoading, setLoading] = useState(false);
+    const [msgType, setMsgType] = useState<'success' | 'error'>('error'); // Track message type
 
     const handleInputs = (name: string) => {
         return (value: string) => {
@@ -26,15 +28,8 @@ const ForgetPassword = () => {
                 ...prevInputs,
                 [name]: value
             }));
-            // const rules = {
-            //     [name]: name === 'email' ? 'required|email' : 'required'
-            // };
             const rules = {
-                [name]: 
-                    name === "email" ? "required|email" : 
-                    name === "password" ? "required|min:6" : 
-                    name === "phone" ? "required|numeric|min:10|max:15" : 
-                    "required", // Default to "required" for all other fields
+                [name]: name === 'email' ? 'required|email' : 'required'
             };
             const fieldErrors:  ErrorsType = validate({ [name]: value }, rules);
             const hasError = !!fieldErrors[name];
@@ -57,7 +52,10 @@ const ForgetPassword = () => {
             [input]: error
         }));
     }
-    const handleMessage = (message: string) => setMsg(message);
+    const handleMessage = (message: string, type: 'success' | 'error') => {
+        setMsg(message);
+        setMsgType(type); // Set message type (success or error)
+    };
 
     const animatedBorderColor = useRef(new Animated.Value(0)).current;
     const [focusedInput, setFocusedInput] = useState<string | null>(null); // Track focused input
@@ -83,30 +81,37 @@ const ForgetPassword = () => {
         inputRange: [0, 1, 2], // 0 = default, 1 = focus, 2 = error
         outputRange: ['#EDF1F3', '#121212', 'red'], // Default, focused, error
     });
-
+   
     const Submit = async () => {
+        Keyboard.dismiss();
         setLoading(true);
         setErrors({});
         setMsg('');
-        // const rules = {
-        //     email: 'required|email'
-        // };
-        // const errors:  ErrorsType = validate(inputs, rules);
-        // Object.keys(errors).length > 0
-        // ? (console.log('Validation errors:', errors), errors.email && handleErrors(errors.email, 'email'))
-        // : console.log('All inputs are valid!'); // Proceed with form submission logic, e.g., send data to an API
-
-        setLoading(false);
+        setTimeout(() => {
+            forgot_password(inputs.email)
+            .then(async (res: AxiosResponse) => {
+                const {results, message} = res.data;
+                setMsg(message);
+                setMsgType('success');
+                console.log(results);
+                //router.push('/dashboard');
+            }).catch((error: AxiosError<any>) => {
+                setErrors({});
+                setMsg('');
+                setLoading(false); 
+                if (error.response) {
+                    let errors = error.response.data.error;
+                    errors.email && handleErrors(errors.email, 'email');
+                    if (error.response.status === 400 || error.response.status === 401) {
+                        handleMessage(error.response.data.message, 'error');
+                    }
+                }
+            })
+        }, 100); // Delay submission 
     }
 
     return (
         <SafeAreaView className="flex-1 bg-white pt-[20px]">
-            {/* <StatusBar
-                animated={true}
-                backgroundColor="#61dafb"
-                networkActivityIndicatorVisible={false}
-                hidden={false}
-            /> */}
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"
@@ -117,7 +122,12 @@ const ForgetPassword = () => {
                         <Text className="text-[30px] font-primary font-bold text-[#2A0944] mb-2.5">Forgot Your Password</Text>
                         <Text className="font-primary text-[#6C7278]">Enter your valid email address and we will share a link to create a new password.</Text>
                     </View>
-                    <Text className="text-[16px] text-red-500 mb-2.5 font-primary text-center">{msg}</Text>
+                    <Text
+                        className="text-[16px] mb-2.5 font-primary text-center"
+                        style={{ color: msgType === 'success' ? 'green' : 'red' }}
+                    >
+                        {msg}
+                    </Text>
 
                     <View className="flex-1">
                         <CustomInput 
@@ -133,29 +143,14 @@ const ForgetPassword = () => {
                             onFocus={() => handleFocus("email")} // Set focused input
                             onBlur={() => handleBlur("email")} // Clear focused input
                         />
-
-                        <CustomInput 
-                            label="Password"
-                            type="text"
-                            value={inputs.password}
-                            onChangeText={handleInputs("password")}
-                            placeholder="Enter your password"
-                            error={errors.password}
-                            name={"password"}
-                            focusedInput={focusedInput} // Check if this input is focused
-                            animatedBorderColor={focusedInput === "password" ? borderColor : "#EDF1F3"}
-                            onFocus={() => handleFocus("password")} // Set focused input
-                            onBlur={() => handleBlur("password")} // Clear focused input
-                        />
                         
                         <PrimaryButton 
                             title="Reset Password"
                             isLoading={isLoading} 
                             action={Submit}
-                            disabled={false}
+                            disabled={inputs.email.length === 0}
                         />
                     </View>
-                        
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>
