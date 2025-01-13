@@ -30,14 +30,22 @@ const CustomInput: React.FC<CustomInputProps> = ({
     placeholder, 
     className,
     error,
-    name,
+    name = 'default',
     focusedInput,
     animatedBorderColor,
     onFocus,
     onBlur,
     ...props
 }) => {
-    const [seePassword, setSeePassword] = useState<boolean>(false);
+    const [passwordVisibility, setPasswordVisibility] = useState<Record<string, boolean>>({});
+    const togglePasswordVisibility = () => {
+        setPasswordVisibility(prev => ({
+            ...prev,
+            [name]: !prev[name]
+        }));
+    };
+    // // Get the visibility state for this specific password field
+    const seePassword = passwordVisibility[name];
     // Determine input mode and secure text entry based on type
     const getInputProps = (): Partial<TextInputProps> => {
         switch(type) {
@@ -68,7 +76,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
         return (
             <TouchableOpacity 
-                onPress={() => setSeePassword(!seePassword)} 
+                onPress={togglePasswordVisibility} 
                 className="pr-4"
             >
                 {<SvgXml xml={seePassword ? eye : eye_off} width="24" height="24"></SvgXml>}

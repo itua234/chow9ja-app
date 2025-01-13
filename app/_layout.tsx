@@ -52,6 +52,7 @@ export default function RootLayout() {
         <Stack.Screen name="forgot-password" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
         <Stack.Screen name="dashboard" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
         <Stack.Screen name="notifications" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
+        <Stack.Screen name="change-password" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
         <Stack.Screen name="+not-found" />
       </Stack>
       {/* <StatusBar style="auto" /> */}

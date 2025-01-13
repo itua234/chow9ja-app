@@ -33,6 +33,7 @@ const shorthandMap: {
     max: (length: string) => ({ max_length: parseInt(length, 10) || 0 }),
     special: { has_special_character: true },
     number: { must_have_number: true },
+    match: (value: string) => ({ match: value }),
     no_whitespace: { no_whitespace: true },
     alphanumeric: { is_alphanumeric: true },
     custom: (param: string) => ({ custom: eval(param) as (value: string) => boolean }),
@@ -82,6 +83,9 @@ export const validate = (inputs: { [key: string]: string }, rules: { [key: strin
         const whitespaceRegex = /\s/;
         const alphanumericRegex = /^[a-z0-9]+$/i;
 
+        const matchFieldName = match ? match : '';
+        const matchFieldValue = matchFieldName && matchFieldName in inputs ? inputs[matchFieldName] : '';
+
         const validationRules: ValidationRules = {
             required: required ? !!inputValue : true,
             min_length: min_length ? (!!inputValue && inputValue.length >= min_length) : true,
@@ -91,7 +95,7 @@ export const validate = (inputs: { [key: string]: string }, rules: { [key: strin
             email: email ? /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(inputValue) || !inputValue : true,
             has_special_character: has_special_character ? specialCharsRegex.test(inputValue) || !inputValue : true,
             must_have_number: must_have_number ? numberRegex.test(inputValue) || !inputValue : true,
-            match: match ? (inputValue === match) || !inputValue : true,
+            match: match ? (inputValue === matchFieldValue) || !inputValue : true,
             no_whitespace: no_whitespace ? !whitespaceRegex.test(inputValue) : true,
             is_number: is_number ? !isNaN(Number(inputValue)) : true,
             is_alphanumeric: is_alphanumeric ? alphanumericRegex.test(inputValue) : true,
@@ -105,18 +109,25 @@ export const validate = (inputs: { [key: string]: string }, rules: { [key: strin
             })() : true,
         };
 
+        const formatFieldName = (fieldName: string): string => {
+            return fieldName
+                .split('_') // Split on underscores
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+                .join(' '); // Join words with a space
+        };
+
         const errorMessages: ErrorMessages = {
-            required: `${inputName} field is required`,
-            min_length: `${inputName} must have at least ${min_length} characters`,
-            max_length: `${inputName} must not exceed ${max_length} characters`,
-            email: `${inputName} must be a valid email`,
-            has_special_character: `${inputName} must have special characters`,
-            must_have_number: `${inputName} must have a number`,
-            match: 'Does not match the specified field',
-            no_whitespace: `${inputName} must not contain whitespace`,
-            is_number: `${inputName} must be a number`,
-            is_alphanumeric: `${inputName} must be alphanumeric`,
-            custom: `${inputName} failed custom validation`,
+            required: `${formatFieldName(inputName)} field is required`,
+            min_length: `${formatFieldName(inputName)} must have at least ${min_length} characters`,
+            max_length: `${formatFieldName(inputName)} must not exceed ${max_length} characters`,
+            email: `${formatFieldName(inputName)} must be a valid email`,
+            has_special_character: `${formatFieldName(inputName)} must have special characters`,
+            must_have_number: `${formatFieldName(inputName)} must have a number`,
+            match: `${formatFieldName(inputName)} does not match the ${formatFieldName(matchFieldName)} field`,
+            no_whitespace: `${formatFieldName(inputName)} must not contain whitespace`,
+            is_number: `${formatFieldName(inputName)} must be a number`,
+            is_alphanumeric: `${formatFieldName(inputName)} must be alphanumeric`,
+            custom: `${formatFieldName(inputName)} failed custom validation`,
         };
 
         const failedRules = Object.entries(validationRules)

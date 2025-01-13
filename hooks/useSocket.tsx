@@ -30,12 +30,14 @@ const useSocket = <T = any>({
 }: UseSocketOptions): UseSocketReturn<T> => {
     const [notifications, setNotifications] = useState<Notification<T>[]>([]);
     const [notificationCount, setNotificationCount] = useState(0);
+    const [socketInstance, setSocket] = useState<Socket | null>(null); // Add this state
 
     useEffect(() => {
         const socket: Socket = io(url, options);
+        setSocket(socket); // Store socket in state
 
-        socket.on("connect", () => {
-            console.log("Connected to the socket");
+        socket.on('connect', () => {
+            console.log('Connected to notification server');
         });
 
         events.forEach((event) => {
@@ -61,6 +63,10 @@ const useSocket = <T = any>({
             console.error("Error:", errorMessage);
         });
 
+        socket.on('disconnect', () => {
+            console.log('Disconnected from notification server');
+        });
+
         return () => {
             console.log("Cleaning up socket...");
             socket.off("connect");
@@ -81,6 +87,8 @@ const useSocket = <T = any>({
                     : notification
             )
         );
+        // You might want to send this to your server
+        socketInstance?.emit('markAsRead');
     };
 
     const removeNotification = (notificationId: string) => {

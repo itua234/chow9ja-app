@@ -82,7 +82,7 @@ const DashboardHeader = () => {
             </View>
             <View className="flex-row items-center justify-center">
                 <View className="w-[40px] h-[40px] rounded-full bg-white items-center justify-center ml-[10px]">
-                    <Pressable onPress={() => router.push('/notifications')}>
+                    <Pressable onPress={() => router.push('/change-password')}>
                         <SvgXml xml={notificationCount > 0 ? active_bell : bell} width="30" height="30" />
                     </Pressable>
                 </View>
