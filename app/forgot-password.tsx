@@ -148,7 +148,10 @@ const ForgetPassword = () => {
                             title="Reset Password"
                             isLoading={isLoading} 
                             action={Submit}
-                            disabled={inputs.email.length === 0}
+                            disabled={
+                                Object.values(errors).some(error => error) || // Check for errors
+                                !inputs.email // Ensure required inputs are filled
+                            }
                         />
                     </View>
                 </View>

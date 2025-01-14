@@ -112,12 +112,12 @@ export const validate = (inputs: { [key: string]: string }, rules: { [key: strin
         const formatFieldName = (fieldName: string): string => {
             return fieldName
                 .split('_') // Split on underscores
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+                .map(word => word.charAt(0) + word.slice(1)) // Capitalize each word
                 .join(' '); // Join words with a space
         };
 
         const errorMessages: ErrorMessages = {
-            required: `${formatFieldName(inputName)} field is required`,
+            required: `The ${formatFieldName(inputName)} field is required`,
             min_length: `${formatFieldName(inputName)} must have at least ${min_length} characters`,
             max_length: `${formatFieldName(inputName)} must not exceed ${max_length} characters`,
             email: `${formatFieldName(inputName)} must be a valid email`,

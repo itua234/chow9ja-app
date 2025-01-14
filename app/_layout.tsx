@@ -45,7 +45,8 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme !== 'dark' ? DarkTheme : DefaultTheme}>
       <Stack initialRouteName="sign-in">
-      <Stack.Screen name="splash" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
+        <Stack.Screen name="(tabs)" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
+        <Stack.Screen name="splash" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
         <Stack.Screen name="sign-in" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
         <Stack.Screen name="sign-up" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
         <Stack.Screen name="verify-email" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
