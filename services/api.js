@@ -70,6 +70,10 @@ export const forgot_password = (email) => {
     return client.get(`auth/email/${email}/password_reset/send-code`, { useAppToken: true });
 }
 
+export const change_password = (inputs) => {
+    return client.post(`auth/change-password`, inputs, { useAppToken: false });
+}
+
 export const get_flags = () => {
     //return axios.get("https://flagcdn.com/en/codes.json");
     return axios.get("https://country-code-au6g.vercel.app/Country.json");

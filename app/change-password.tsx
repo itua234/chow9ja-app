@@ -4,7 +4,7 @@ import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton"
 import CustomInput from "@/components/CustomInput"
-import {forgot_password} from "@/services/api"
+import {change_password} from "@/services/api"
 import { AxiosResponse, AxiosError } from 'axios';
 import {router} from "expo-router";
 import {validate} from "@/util/validator"
@@ -16,7 +16,12 @@ interface ErrorsType {
     [key: string]: string;
 }
 const ChangePassword = () => {
-    const [inputs, setInputs] = useState<InputsType>({email: ""});
+    const [inputs, setInputs] = useState<InputsType>({
+        email: "",
+        current_password: "",
+        password: "",
+        confirm_password: ""
+    });
     const [msg, setMsg] = useState('');
     const [errors, setErrors] = useState<ErrorsType>({});
     const [isLoading, setLoading] = useState(false);
@@ -26,7 +31,8 @@ const ChangePassword = () => {
         return (value: string) => {
             setInputs(prevInputs => ({
                 ...prevInputs,
-                [name]: value
+                [name]: value,
+                ...(name === 'password' ? { confirm_password: '' } : {}), // Clear confirm_password if name is password
             }));
             const rules = {
                 [name]: 
@@ -92,8 +98,9 @@ const ChangePassword = () => {
         setLoading(true);
         setErrors({});
         setMsg('');
+        console.log(inputs);
         setTimeout(() => {
-            forgot_password(inputs.email)
+            change_password(inputs)
             .then(async (res: AxiosResponse) => {
                 const {results, message} = res.data;
                 setMsg(message);
@@ -107,6 +114,9 @@ const ChangePassword = () => {
                 if (error.response) {
                     let errors = error.response.data.error;
                     errors.email && handleErrors(errors.email, 'email');
+                    errors.current_password && handleErrors(errors.current_password, 'current_password');
+                    errors.password && handleErrors(errors.password, 'password');
+                    errors.confirm_password && handleErrors(errors.confirm_password, 'confirm_password');
                     if (error.response.status === 400 || error.response.status === 401) {
                         handleMessage(error.response.data.message, 'error');
                     }
@@ -182,7 +192,12 @@ const ChangePassword = () => {
                             title="Change Password"
                             isLoading={isLoading} 
                             action={Submit}
-                            disabled={inputs.email.length === 0}
+                            disabled={
+                                Object.values(errors).some(error => error) || // Check for errors
+                                !inputs.current_password || // Ensure required inputs are filled
+                                !inputs.password ||
+                                !inputs.confirm_password
+                            }
                         />
                     </View>
                 </View>
