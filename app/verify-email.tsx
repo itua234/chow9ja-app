@@ -7,6 +7,7 @@ import PrimaryButton from "@/components/PrimaryButton"
 import { AxiosResponse, AxiosError } from 'axios';
 import { useLocalSearchParams, router } from "expo-router";
 import { send_code, verify_code } from "@/services/api"
+import { storeData } from '@/util/helper';
 
 const VerifyEmail = () => {
     const { email = "" } = useLocalSearchParams();
@@ -75,21 +76,18 @@ const VerifyEmail = () => {
     }, []);
 
     const Verify = async () => {
+        Keyboard.dismiss();
         setLoading(true);
+        setMsg('');
         const filledInputs = otp.every((digit) => digit !== '');
         if(filledInputs){
             const otpValue = otp.join('');
-            console.log(otpValue);
-
-            //Keyboard.dismiss();
-            setMsg('');
             setTimeout(() => {
                 verify_code(email as string, otpValue, "email_verification")
-                .then(async(res: AxiosResponse) => {
-                    //setLoading(false);
-                    //await storeData("user_token", res.data?.results.token);
-                    //navigation.navigate('Dashboard');
-                    console.log(res.data?.results);
+                .then(async (res: AxiosResponse) => {
+                    setLoading(false);
+                    await storeData("user_token", res.data?.results?.token);
+                    router.push('/dashboard');
                 }).catch((error: AxiosError<any>) => {
                     setMsg('');
                     setLoading(false); 
@@ -109,16 +107,42 @@ const VerifyEmail = () => {
 
     const ResendCode = async () => {
         setLoading(true);
+        setMsg('');
+        setTimeout(() => {
+            send_code(email as string, "email_verification")
+            .then((res: AxiosResponse) => {
+                console.log(res.data?.results);
+                setLoading(false);
+                // Reset timer and disable resend button
+                setTimer(120);
+                setResendIsDisabled(true);
+                // Show success message if provided in response
+                if (res.data?.message) {
+                    handleMessage(res.data.message);
+                }
+            }).catch((error: AxiosError<any>) => {
+                setMsg('');
+                setLoading(false); 
+                if (error.response) {
+                    let errors = error.response.data.error;
+                    errors.email && handleErrors(errors.email, 'email');
+                    if (error.response.status === 400 || error.response.status === 401) {
+                        handleMessage(error.response.data.message);
+                    }
+                }
+            });
+        }, 100); // Delay submission 
     }
 
     return (
         <SafeAreaView className="flex-1 bg-white">
-            {/* <StatusBar
+            <StatusBar
                 animated={true}
                 backgroundColor="#61dafb"
-                networkActivityIndicatorVisible={false}
+                barStyle="dark-content" 
+                networkActivityIndicatorVisible={true}
                 hidden={false}
-            /> */}
+            />
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"
@@ -165,7 +189,7 @@ const VerifyEmail = () => {
                                 ))}
                             </View>
 
-                            <View className="mt-[15px] flex-row justify-center">
+                            <View className="mt-[15px] flex-row justify-center mb-[20px]">
                                 <Text className="font-primary mr-[5px]">Did not receive the code?</Text>
                                 <Pressable onPress={ResendCode} disabled={resendIsDisabled}>
                                     <Text className="font-primary text-primary">Resend Code</Text>

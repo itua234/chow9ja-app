@@ -14,6 +14,7 @@ import {storeData} from "@/util/helper"
 import { AxiosResponse, AxiosError } from 'axios';
 import {router} from "expo-router";
 import * as Haptics from 'expo-haptics';
+import { validate } from '@/util/validator';
 
 interface InputsType {
     [key: string]: string;
@@ -38,7 +39,6 @@ const Signup = () => {
     const [countries, setCountries] = useState([]);
  
     const onSelectCountry = (country: Country) => {
-        console.log(country);
         const flagUrl = `https://flagcdn.com/w320/${country.code.toLowerCase()}.png`;
         setFlagUrl(flagUrl);
         setCallingCode(country.dial_code);
@@ -75,6 +75,21 @@ const Signup = () => {
                 ...prevInputs,
                 [name]: value
             }));
+            const rules = {
+                [name]: 
+                    name === 'firstname' ? 'required' : 
+                    name === 'lastname' ? 'required' : 
+                    name === 'email' ? 'required|email' : 
+                    name === 'phone' ? 'required|number|min:10' :
+                    name === 'password' ? 'required|min:8|number|special' :
+                'required'
+            };
+            const fieldErrors:  ErrorsType = validate({ [name]: value }, rules);
+            // Clear error if input becomes valid, or set new error
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                [name]: fieldErrors[name] || ''
+            }));
         };
     };
     const handleErrors = (error: string, input: string) => {
@@ -91,7 +106,11 @@ const Signup = () => {
         };
     }
     const Signup = async () => {
-        router.push("/verify-email");
+        // router.push({
+        //     pathname: "/verify-email",
+        //     params: {email: "ituaosemeilu234@gmail.com"}
+        // });
+        inputs.phone = callingCode + inputs.phone;
         console.log(inputs);
         Keyboard.dismiss();
         setLoading(true);
@@ -99,10 +118,13 @@ const Signup = () => {
         setMsg('');
         setTimeout(() => {
             register(inputs)
-            .then(async(res: AxiosResponse) => {
+            .then(async (res: AxiosResponse) => {
                 //setLoading(false);
-                console.log(res.data?.results);
-                //navigation.navigate("VerifyEmail", {email: res.data?.results});
+                //console.log(res.data?.results);
+                router.push({
+                    pathname: "/verify-email",
+                    params: {email: res.data?.results}
+                });
             }).catch((error: AxiosError<any>) => {
                 setErrors({});
                 setMsg('');
@@ -124,12 +146,13 @@ const Signup = () => {
 
     return (
         <SafeAreaView className="flex-1 bg[#0D0D1B] bg-white pt-[20px]">
-            {/* <StatusBar
+            <StatusBar
                 animated={true}
                 backgroundColor="#61dafb"
-                networkActivityIndicatorVisible={false}
+                barStyle="dark-content" 
+                networkActivityIndicatorVisible={true}
                 hidden={false}
-            /> */}
+            />
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"
