@@ -21,6 +21,7 @@ import {
     DashboardActivityProps, 
     AccountBalanceProps 
 } from "@/util/types";
+import InvestmentCard from "@/components/InvestmentCard"
 
 
 export const DashboardQuickAction = ({ 
@@ -196,12 +197,70 @@ const Dashboard = () => {
         }
     };
 
+    const [investments, setInvestments] = useState({});
     useEffect(() => {
         const fetchWallet = async () => {
             const response = await get_wallet();
             const { wallet, transactions } = response.data.results;
             setWallet(wallet);
             setTransactions(transactions);
+            setInvestments([
+                {
+                    id: "1",
+                    name: "Real Estate Fund",
+                    image: "https://example.com/images/real-estate.jpg",
+                    returns: "7",
+                    amount: 50000,
+                    createdAt: "2023-01-01",
+                    status: "active",
+                    duration: 12,
+                    description: "A diversified real estate investment fund offering steady returns.",
+                },
+                {
+                    id: "2",
+                    name: "Tech Growth Fund",
+                    image: "https://example.com/images/tech-growth.jpg",
+                    returns: "12",
+                    amount: 30000,
+                    createdAt: "2023-02-15",
+                    status: "active",
+                    duration: 12,
+                    description: "An investment fund focused on high-growth tech companies.",
+                },
+                {
+                    id: "3",
+                    name: "Green Energy Fund",
+                    image: "https://example.com/images/green-energy.jpg",
+                    returns: "9",
+                    amount: 40000,
+                    createdAt: "2023-03-10",
+                    status: "pending",
+                    duration: 9,
+                    description: "A fund investing in renewable energy and sustainable projects.",
+                },
+                {
+                    id: "4",
+                    name: "Global Equity Fund",
+                    image: "https://example.com/images/global-equity.jpg",
+                    returns: "8",
+                    amount: 60000,
+                    createdAt: "2023-04-05",
+                    status: "active",
+                    duration: 6,
+                    description: "A portfolio of global stocks providing stable long-term returns.",
+                },
+                {
+                    id: "5",
+                    name: "Cryptocurrency Fund",
+                    image: "https://example.com/images/crypto.jpg",
+                    returns: "15",
+                    amount: 20000,
+                    createdAt: "2023-05-20",
+                    status: "inactive",
+                    duration: 9,
+                    description: "A high-risk fund investing in major cryptocurrencies.",
+                }
+            ]);
         };
         fetchWallet();
     }, []);
@@ -313,6 +372,15 @@ const Dashboard = () => {
                         </View>
                     </View>
                 </RBSheet>
+
+                <View>
+                        <FlatList
+                            data={investments}
+                            renderItem={({item}) => <InvestmentCard data={item} />}
+                            keyExtractor={(item) => item.id.toString()}
+                            scrollEnabled={false}
+                        />
+                </View>
 
                 <AddFundModal 
                     isVisible={modalVisible}
