@@ -9,11 +9,11 @@ import {
 const InvestmentCard = ({ data }: {data: Investment}) => {
     return (
         <Pressable onPress={() => {console.log("Card clicked", data);}}>
-            <View className="p-[8px] pr-[10px] mb-[10px] bg-white flex flex-row items-center border-2 border-[#89ABD9] rounded-[18px]">
+            <View className="p-[8px] pr-[10px] mb-[10px] bg-white flex flex-row items-center rounded-[18px]">
                 <View className="">
                     <Image
                         style={{height: 115, width: 115, borderRadius: 10}}
-                        source={{uri: "https://res.cloudinary.com/capital-votes/image/upload/v1740639662/vvdkjh8futiuvfndoqep.png"}}
+                        source={{uri: "https://docazystor1.blob.core.windows.net/multimedia/1736981694541-pexels-pixabay-259593.jpg"}}
                     />
                 </View>
                 <View className="flex flex-1 flex-col ml-4 h-full min-h-[120px] justify-between">

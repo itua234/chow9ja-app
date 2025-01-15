@@ -25,11 +25,11 @@ const ScreenLayout: React.FC<ScreenLayoutProps> = ({
         <SafeAreaView className={`flex-1 bg-[#f3f3f3] ${className}`}>
             <StatusBar
                 animated={false}
-                //backgroundColor="black"
+                backgroundColor="#f3f3f3"
                 networkActivityIndicatorVisible={true}
                 hidden={false}
                 barStyle="dark-content"
-                translucent={true}
+                translucent={false}
             />
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}

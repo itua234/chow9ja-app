@@ -145,13 +145,14 @@ const Signup = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg[#0D0D1B] bg-white pt-[20px]">
+        <SafeAreaView className="flex-1 bg-white pt-[20px]">
             <StatusBar
-                animated={true}
-                backgroundColor="#61dafb"
-                barStyle="dark-content" 
+                animated={false}
+                backgroundColor="#fff"
                 networkActivityIndicatorVisible={true}
                 hidden={false}
+                barStyle="dark-content"
+                translucent={false}
             />
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
