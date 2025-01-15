@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {View, Text, Pressable, Image} from 'react-native';
 import {SvgXml} from "react-native-svg";
-import {arrow_up, arrow_down} from '../util/svg';
+import {arrow_up} from '../util/svg';
 import { 
     Investment  
 } from "@/util/types";
@@ -9,7 +9,7 @@ import {
 const InvestmentCard = ({ data }: {data: Investment}) => {
     return (
         <Pressable onPress={() => {console.log("Card clicked", data);}}>
-            <View className="p-[8px] pr-[10px] mb-[10px] bg-white flex flex-row items-center border-2 border-[#89ABD9] rounded-[10px]">
+            <View className="p-[8px] pr-[10px] mb-[10px] bg-white flex flex-row items-center border-2 border-[#89ABD9] rounded-[18px]">
                 <View className="">
                     <Image
                         style={{height: 115, width: 115, borderRadius: 10}}
