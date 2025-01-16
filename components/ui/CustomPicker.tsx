@@ -6,11 +6,13 @@ import {
   TouchableOpacity, 
   Text, 
   TextInput,
-  StatusBar
+  StatusBar,
+  Platform,
+  SafeAreaView, 
 } from 'react-native';
-import {SafeAreaView, SafeAreaProvider, useSafeAreaInsets} from 'react-native-safe-area-context';
+import {SafeAreaProvider, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {SvgXml} from "react-native-svg";
-import {cancel} from '../../util/svg';
+import {arrow_down, cancel} from '../../util/svg';
 
 type PickerType  = {
     title: string,
@@ -63,7 +65,10 @@ const CustomPicker: React.FC<PickerType> = ({
                 visible={modalVisible}
                 onRequestClose={() => setModalVisible(!modalVisible)}
             >
-                <SafeAreaView className="flex-1 bg-white">
+                <SafeAreaView className="flex-1 bg-white"
+                style={{
+                    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+                }}>
                     <StatusBar
                         animated={false}
                         backgroundColor="#fff"
@@ -73,14 +78,16 @@ const CustomPicker: React.FC<PickerType> = ({
                         translucent={false}
                     />
                     <View className="flex-1 bg-white">
-                        <View className="px-[15px] pb-[15px] flex-row ">
-                            <View className="flex-1 justify-center">
+                        <View className="px-[15px] pb-[15px] flex-row justify-between">
+                            <View className="justify-center">
                                 <Text className="text-[#6C7278] font-primary text-[16px]">
                                     {title}
                                 </Text>
                             </View>
                             <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <SvgXml xml={cancel} width="27" height="27" />
+                                <View className='flex items-center justify-center w-[40px] h-[40px] rounded-full bg-primary'>
+                                    <SvgXml xml={cancel} width="27" height="27" />
+                                </View>
                             </TouchableOpacity>
                         </View>
                         <View className="px-[15px]">
@@ -99,6 +106,7 @@ const CustomPicker: React.FC<PickerType> = ({
                                 value={searchQuery}
                                 onChangeText={setSearchQuery}
                                 clearButtonMode="while-editing"
+                                keyboardAppearance="light"
                                 />
                             </View>
                         </View>
@@ -107,6 +115,7 @@ const CustomPicker: React.FC<PickerType> = ({
                                 <Text className="
                                     text-gray-500 
                                     text-center 
+                                    font-primary
                                     text-base
                                 ">
                                     No results found

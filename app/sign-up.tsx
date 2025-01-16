@@ -204,7 +204,7 @@ const Signup = () => {
                             />
                             
                             <View className="">
-                                <Text className="text-[#6C7278] mb-2 mt-[7.5px] font-primary">Phone Number</Text>
+                                <Text className="mb-2 mt-[7.5px] font-primary">Phone Number</Text>
                                 <View className={`flex-row items-center border-2 border-[#EDF1F3] rounded-[15px]`}>
                                     <TouchableOpacity 
                                         className="flex-row items-center justify-center w-[110px] h-full border-r border-[#EDF1F3] "
