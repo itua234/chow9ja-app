@@ -96,7 +96,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
                 flex-row 
                 items-center 
                 border-2 
-                rounded-md ${className}
+                rounded-[15px] ${className}
             `}
             style={{ borderColor: animatedBorderColor || '#EDF1F3' }}>
                 <TextInput

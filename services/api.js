@@ -2,10 +2,22 @@ import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Uncomment and use environment variables in a real-world scenario
-const appToken = process.env.EXPO_PUBLIC_APP_TOKEN;
+//const appToken = process.env.EXPO_PUBLIC_APP_TOKEN;
+const appToken = "c2505e1877c35bff219c55c2820a0300a1fa3fdf33289e3fc5036c8fce2021d2";
 
+// const client = axios.create({
+//     baseURL: process.env.EXPO_PUBLIC_APP_URL,
+//     headers: {
+//         Accept: 'application/json',
+//         'Content-Type': 'application/json'
+//     }
+// });
 const client = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_APP_URL,
+    //baseURL: "http://192.168.43.253:8080/api/v1/",
+    baseURL: "http://172.20.10.4:8080/api/v1/",
+    //baseURL: "http://192.168.66.166:8080/api/v1/",
+    // baseURL: "http://10.0.2.2:8000/api/v1/",
+    //baseURL: "https://docazytest.azurewebsites.net/api/v1/",
     headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'

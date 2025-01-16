@@ -21,7 +21,7 @@ const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
    return (
         <TouchableOpacity 
         onPress={onPress}
-        className={`flex-row items-center justify-center border-2 rounded-lg mb-3.5 py-5 px-[15px]`}
+        className={`flex-row items-center justify-center border-2 rounded-[15px] mb-3.5 py-5 px-[15px]`}
         style={[
             { 
             backgroundColor: backgroundColor,
@@ -44,6 +44,5 @@ const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
         </TouchableOpacity>
     );
 };
-
 
 export default SocialLoginButton;

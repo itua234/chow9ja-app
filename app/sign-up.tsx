@@ -110,14 +110,16 @@ const Signup = () => {
         //     pathname: "/verify-email",
         //     params: {email: "ituaosemeilu234@gmail.com"}
         // });
-        inputs.phone = callingCode + inputs.phone;
-        console.log(inputs);
+        const payload = inputs;
+        if (inputs.phone || inputs.phone.trim() !== "") {
+            payload.phone = callingCode + inputs.phone;
+        }
         Keyboard.dismiss();
         setLoading(true);
         setErrors({});
-        setMsg('');
+        handleMessage('');
         setTimeout(() => {
-            register(inputs)
+            register(payload)
             .then(async (res: AxiosResponse) => {
                 //setLoading(false);
                 //console.log(res.data?.results);
@@ -127,7 +129,7 @@ const Signup = () => {
                 });
             }).catch((error: AxiosError<any>) => {
                 setErrors({});
-                setMsg('');
+                handleMessage('');
                 setLoading(false); 
                 if (error.response) {
                     let errors = error.response.data.error;
@@ -203,9 +205,9 @@ const Signup = () => {
                             
                             <View className="">
                                 <Text className="text-[#6C7278] mb-2 mt-[7.5px] font-primary">Phone Number</Text>
-                                <View className={`flex-row items-center border-2 border-[#EDF1F3] rounded-md`}>
+                                <View className={`flex-row items-center border-2 border-[#EDF1F3] rounded-[15px]`}>
                                     <TouchableOpacity 
-                                        className="flex-row items-center justify-center w-[100px] h-full border-r border-[#EDF1F3] "
+                                        className="flex-row items-center justify-center w-[110px] h-full border-r border-[#EDF1F3] "
                                         onPress={async () => {
                                             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
                                             setShowCountryPicker(!showCountryPicker)
@@ -253,6 +255,8 @@ const Signup = () => {
 
                         <CustomPicker
                             modalVisible={showCountryPicker}
+                            animationType="slide"
+                            title="Select a Country"
                             setModalVisible={setShowCountryPicker}
                             data={countries}
                             onSelect={onSelectCountry}
