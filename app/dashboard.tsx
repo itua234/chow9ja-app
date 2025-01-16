@@ -22,6 +22,7 @@ import {
     AccountBalanceProps 
 } from "@/util/types";
 import InvestmentCard from "@/components/InvestmentCard"
+import { router } from 'expo-router';
 
 
 export const DashboardQuickAction = ({ 
@@ -280,6 +281,7 @@ const Dashboard = () => {
     const handleSend = () => {
         //navigation.navigate('SendMoney');
         console.log("send");
+        router.push("/send");
     };
     const handleAddFunds = async () => {
         setLoading(!isLoading);

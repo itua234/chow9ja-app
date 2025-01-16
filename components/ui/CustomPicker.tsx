@@ -17,7 +17,8 @@ type PickerType  = {
     modalVisible: boolean,
     animationType?: 'none' | 'slide' | 'fade',
     setModalVisible: (value: boolean) => void;
-    data: { [key: string]: string }[];
+    //data: { [key: string]: string }[];
+    data: any[],
     onSelect: (item: any) => void;
     displayKey?: string;
     searchPlaceholder? : string;
@@ -83,7 +84,7 @@ const CustomPicker: React.FC<PickerType> = ({
                             </TouchableOpacity>
                         </View>
                         <View className="px-[15px]">
-                            <View className="flex-row items-center border-2 border-[#EDF1F3] rounded-md">
+                            <View className="flex-row items-center border-2 border-[#EDF1F3] rounded-[15px]">
                                 <TextInput
                                 className="
                                     flex-1

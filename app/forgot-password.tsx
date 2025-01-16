@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar, Animated, Keyboard } from 'react-native';
+import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar, Animated, Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton"
@@ -21,6 +21,7 @@ const ForgetPassword = () => {
     const [errors, setErrors] = useState<ErrorsType>({});
     const [isLoading, setLoading] = useState(false);
     const [msgType, setMsgType] = useState<'success' | 'error'>('error'); // Track message type
+    const [isErrorVisible, setErrorVisible] = useState(false); // Control error overlay visibility
 
     const handleInputs = (name: string) => {
         return (value: string) => {
@@ -91,10 +92,16 @@ const ForgetPassword = () => {
             forgot_password(inputs.email)
             .then(async (res: AxiosResponse) => {
                 const {results, message} = res.data;
+                setLoading(false);
                 setMsg(message);
                 setMsgType('success');
                 console.log(results);
                 //router.push('/dashboard');
+                setErrorVisible(true); // Show the error banner
+                // Automatically hide the banner after 6 seconds
+                setTimeout(() => {
+                    setErrorVisible(false);
+                }, 6000);
             }).catch((error: AxiosError<any>) => {
                 setErrors({});
                 setMsg('');
@@ -120,6 +127,29 @@ const ForgetPassword = () => {
                 barStyle="dark-content"
                 translucent={false}
             />
+            {isErrorVisible && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 10,
+                    height: 150,
+                    backgroundColor: 'white',
+                    //backgroundColor: msgType === 'error' ? 'red' : 'green',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingHorizontal: 20,
+                    opacity: 0.8
+                }} className="pt-[20px]">
+                    <Text
+                        className="text-[15px] font-primary text-center"
+                        // style={{ color: msgType === 'success' ? 'green' : 'red' }}
+                    >
+                        {msg}
+                    </Text>
+                </View>
+            )}
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"
@@ -130,14 +160,8 @@ const ForgetPassword = () => {
                         <Text className="text-[30px] font-primary font-bold text-[#2A0944] mb-2.5">Forgot Your Password</Text>
                         <Text className="font-primary text-[#6C7278]">Enter your valid email address and we will share a link to create a new password.</Text>
                     </View>
-                    <Text
-                        className="text-[16px] mb-2.5 font-primary text-center"
-                        style={{ color: msgType === 'success' ? 'green' : 'red' }}
-                    >
-                        {msg}
-                    </Text>
 
-                    <View className="flex-1">
+                    <View className="flex-1 mt-2.5">
                         <CustomInput 
                             label="Email"
                             type="email"
