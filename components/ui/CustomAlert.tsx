@@ -1,17 +1,18 @@
 import { View, Text } from "react-native";
 
 interface CustomAlertProps {
-    msg: string;
-    type?: string;
+    msg: { text: string; type: 'success' | 'error' } | null;
     color?: string;
     backgroundColor?: string
 }
 const CustomAlert: React.FC<CustomAlertProps>  = ({ 
     msg,
-    type,
     color,
     backgroundColor
 }) => {
+    if (!msg) {
+        return null; // Return nothing if msg is null
+    }
     return (
         <View style={{
             position: 'absolute',
@@ -19,19 +20,18 @@ const CustomAlert: React.FC<CustomAlertProps>  = ({
             left: 0,
             right: 0,
             zIndex: 10,
-            height: 150,
-            backgroundColor: 'white',
-            //backgroundColor: msgType === 'error' ? 'red' : 'green',
+            height: 170,
+            backgroundColor: msg.type === 'error' ? 'black' : 'black',
             justifyContent: 'center',
             alignItems: 'center',
             paddingHorizontal: 20,
             opacity: 0.8
         }} className="pt-[20px]">
             <Text
-                className="text-[15px] font-primary text-center"
-                // style={{ color: msgType === 'success' ? 'green' : 'red' }}
+                className="text-[16px] font-primary text-center"
+                style={{ color: msg.type === 'success' ? 'green' : 'red' }}
             >
-                {msg}
+                {msg.text}
             </Text>
         </View>
     )

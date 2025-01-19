@@ -12,6 +12,10 @@ import {storeData} from "@/util/helper"
 import { AxiosResponse, AxiosError } from 'axios';
 import {router} from "expo-router";
 import {validate} from "@/util/validator"
+import { 
+    UserData ,
+    ApiResponse
+} from "@/util/types";
 
 interface InputsType {
     [key: string]: string;
@@ -19,28 +23,12 @@ interface InputsType {
 interface ErrorsType {
     [key: string]: string;
 }
-interface SigninProps {
-    navigation?: any; 
-}
-interface UserData {
-    id: string;
-    firstname: string;
-    lastname: string;
-    email: string;
-    phone: string;
-    password: string;
-    googleId: string | null;
-    verified: boolean;
-    notificationsEnabled: boolean;
-    email_verified_at: string;
-    token: string;
-}
 interface LoginResponse {
     message: string;
     results: UserData;
     error: boolean;
 }
-const Signin: React.FC<SigninProps> = ({}) => {
+const Signin = () => {
     const [inputs, setInputs] = useState<InputsType>({});
     const [msg, setMsg] = useState<string>('');
     const [errors, setErrors] = useState< ErrorsType>({});
@@ -107,7 +95,7 @@ const Signin: React.FC<SigninProps> = ({}) => {
         Keyboard.dismiss();
         setLoading(true);
         setErrors({});
-        setMsg('');
+        handleMessage('');
         setTimeout(() => {
             login(inputs.email, inputs.password)
             .then(async (res: AxiosResponse<LoginResponse>) => {
@@ -116,7 +104,7 @@ const Signin: React.FC<SigninProps> = ({}) => {
                 router.push('/dashboard');
             }).catch((error: AxiosError<any>) => {
                 setErrors({});
-                setMsg('');
+                handleMessage('');
                 setLoading(false); 
                 if (error.response) {
                     let errors = error.response.data.error;

@@ -15,6 +15,9 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
     url, 
     onNavigationStateChange 
 }) => {
+    const cookieScript = `
+    document.cookie = "thirdParty=true; SameSite=None; Secure";
+    `;
     return (
         <View>
             <Modal
@@ -35,15 +38,16 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
                                     'Content-Type': 'text/html; charset=utf-8'
                                 }
                             }}
+                            userAgent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                             className="flex-1"
                             javaScriptEnabled={true}
                             thirdPartyCookiesEnabled={true}
                             domStorageEnabled={true}
-                            incognito={true}
+                            //incognito={true}
                             startInLoadingState={true}
                             scalesPageToFit={true}
                             mixedContentMode="always"
-                            userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                            //userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
                             onNavigationStateChange={onNavigationStateChange}
                             onError={(syntheticEvent) => {
                                 const { nativeEvent } = syntheticEvent;
@@ -53,6 +57,17 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
                                 const { nativeEvent } = syntheticEvent;
                                 console.warn('WebView received error status code: ', nativeEvent.statusCode);
                             }}
+                            sharedCookiesEnabled={true}
+                            cacheEnabled={false}
+                            allowsBackForwardNavigationGestures={true}
+                            contentMode="recommended"  // iOS specific
+                            onShouldStartLoadWithRequest={(request) => {
+                                // Allow all navigation
+                                return true;
+                            }}
+                            //injectedJavaScript={cookieScript}
+                            injectedJavaScriptBeforeContentLoaded={cookieScript}
+                            useWebKit={true}
                         />
                     </View>
                 </SafeAreaView>

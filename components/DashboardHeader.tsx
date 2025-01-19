@@ -7,16 +7,52 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {router} from "expo-router";
 
 const DashboardHeader = () => {
-    // const { 
-    //     notifications, 
-    //     notificationCount, 
-    //     resetNotificationCount 
-    // } = useSocket(
-    //     'http://172.20.10.4:8080', // Replace with your socket server URL
-    //     {auth: { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImZpcnN0bmFtZSI6Ikl0dWEiLCJsYXN0bmFtZSI6Ik9zZW1laWx1IiwiZW1haWwiOiJpdHVhb3NlbWVpbHUyMzRAZ21haWwuY29tIiwidmVyaWZpZWQiOmZhbHNlLCJpZCI6ImM1NDJjZTQwLTNlZGItNGZiMi04OTQ3LTZlMWNiYWQyNmMwYyIsInBob25lIjoiKzIzNDgxMTQ4MDA3NTAiLCJwYXNzd29yZCI6IiQyYiQxMCRyWFRLUHQ4c3ZCdVh0R016Mk8uenYub1FacEV6cEtHMFl2b3ZLU1dTLjI1RVpRdm1Ua0tiYSIsImdvb2dsZUlkIjpudWxsLCJub3RpZmljYXRpb25zRW5hYmxlZCI6dHJ1ZSwiZW1haWxfdmVyaWZpZWRfYXQiOiIyMDI0LTEyLTEwVDAwOjM4OjA1LjAwMFoifSwiaWF0IjoxNzM0NjA5ODUwLCJleHAiOjE3MzQ3ODI2NTB9.LSOA4DtU2Ll05OTR-FWO3FzMORogHboPlz7N0aBpt30" }}, // Optional connection options
-    //     ['notification', 'message', 'alert', 'user_registered'] // Events to listen for
-    // );
-    const [notificationCount, setNotifications] = useState(0);
+    const {
+        notifications,
+        notificationCount,
+        resetNotificationCount,
+        markNotificationAsRead,
+        removeNotification
+    } = useSocket({
+        url: 'http://172.20.10.4:8080',
+        //options: userToken ? { auth: { token: userToken } } : undefined,
+        options: {
+            auth: { 
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImZpcnN0bmFtZSI6Ikp1c3RpbiIsImxhc3RuYW1lIjoiU2t5ZSIsImVtYWlsIjoiaXR1YW9zZW1laWx1MjM0QGdtYWlsLmNvbSIsInZlcmlmaWVkIjpmYWxzZSwiaWQiOiI4NjU4YmUzMC1jZThiLTExZWYtOTMzYy0zYzUyODIyYzg3ZjIiLCJwaG9uZSI6IisyMzQ4MTE0ODAwNzY5IiwicGFzc3dvcmQiOiIkMmIkMTAkTnI5R3FpanJEbjVPZW9qSWVKejFYT2szbHJ3dHdoTTRjZ3QzVnlSWjdIc0N3UDQ3NXppWksiLCJnb29nbGVJZCI6bnVsbCwibm90aWZpY2F0aW9uc0VuYWJsZWQiOnRydWUsImVtYWlsX3ZlcmlmaWVkX2F0IjoiMjAyNS0wMS0yM1QxNDoxMjozNy4wMDBaIn0sImlhdCI6MTczNzA1NDY0MiwiZXhwIjoxNzM3MjI3NDQyfQ.Zr7X1ziQ0fRHVMd40dcQO9OiR8Z3hs2NG4PSKcMvwvM",
+                //room: 'general_room_1',
+            }
+        },
+        events: ['new_message', 'user_joined', 'user_registered'] // Events to listen for
+    });
+    // const [userToken, setUserToken] = useState<string | null>(null);
+    // useEffect(() => {
+    //     const getToken = async () => {
+    //         const token = await AsyncStorage.getItem('user_token');
+    //         setUserToken(token);
+    //     };
+    //     getToken();
+    // }, []);
+
+    // if (!userToken) {
+    //     return null; // Or a loading spinner
+    // }
+
+    // const socketConnection = userToken ? useSocket<MessageData>({
+    //     url: 'http://172.20.10.4:8080',
+    //     options: {
+    //         auth: { token: userToken }
+    //     },
+    //     events: ['new_message', 'user_joined', 'user_registered']
+    // }) : null;
+
+    // const {
+    //     notifications = [],
+    //     notificationCount = 0,
+    //     resetNotificationCount = () => {},
+    //     markNotificationAsRead = () => {},
+    //     removeNotification = () => {}
+    // } = socketConnection || {};
+    
     const [activeTab, setActiveTab] = useState<'Finance' | 'Wallet'>('Finance');
     const walletAnim = useRef(new Animated.Value(0)).current;
     const financeAnim = useRef(new Animated.Value(1)).current;
@@ -82,7 +118,15 @@ const DashboardHeader = () => {
             </View>
             <View className="flex-row items-center justify-center">
                 <View className="w-[40px] h-[40px] rounded-full bg-white items-center justify-center ml-[10px]">
-                    <Pressable onPress={() => router.push('/change-password')}>
+                    <Text className='font-primary text-[14px]'>{notificationCount}</Text>
+                    <Pressable onPress={() => {
+                        router.push({
+                            pathname: '/notifications',
+                            params: {
+                                notifications: JSON.stringify(notifications),
+                            }
+                        });
+                    }}>
                         <SvgXml xml={notificationCount > 0 ? active_bell : bell} width="30" height="30" />
                     </Pressable>
                 </View>

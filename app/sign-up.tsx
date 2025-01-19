@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { GestureResponderEvent } from 'react-native';
 import { Text, View, 
     SafeAreaView, ScrollView, TextInput, Image, Keyboard,
-    KeyboardAvoidingView, TouchableOpacity, Modal,
+    KeyboardAvoidingView, TouchableOpacity,
     Platform, Pressable, StatusBar } from 'react-native';
-import {SvgXml, SvgUri} from "react-native-svg";
+import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton";
 import CustomInput from "@/components/CustomInput";
@@ -15,6 +14,9 @@ import { AxiosResponse, AxiosError } from 'axios';
 import {router} from "expo-router";
 import * as Haptics from 'expo-haptics';
 import { validate } from '@/util/validator';
+import { 
+    Country
+} from "@/util/types";
 
 interface InputsType {
     [key: string]: string;
@@ -22,11 +24,6 @@ interface InputsType {
 interface ErrorsType {
     [key: string]: string;
 }
-type Country = {
-    code: string;        // Country code (e.g., 'US')
-    dial_code: string;   // Dial code (e.g., '+1')
-    name: string;       // Optional country name
-};
 const Signup = () => {
     const [inputs, setInputs] = useState<InputsType>({});
     const [msg, setMsg] = useState<string>('');
@@ -100,11 +97,6 @@ const Signup = () => {
     }
     const handleMessage = (message: string) => setMsg(message);
 
-    interface SignupResponseData {
-        results: {
-            token: string;
-        };
-    }
     const Signup = async () => {
         // router.push({
         //     pathname: "/verify-email",

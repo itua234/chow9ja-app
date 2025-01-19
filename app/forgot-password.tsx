@@ -17,11 +17,10 @@ interface ErrorsType {
 }
 const ForgetPassword = () => {
     const [inputs, setInputs] = useState<InputsType>({email: ""});
-    const [msg, setMsg] = useState('');
+    const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [errors, setErrors] = useState<ErrorsType>({});
     const [isLoading, setLoading] = useState(false);
-    const [msgType, setMsgType] = useState<'success' | 'error'>('error'); // Track message type
-    const [isErrorVisible, setErrorVisible] = useState(false); // Control error overlay visibility
+    //const [isErrorVisible, setErrorVisible] = useState(false); // Control error overlay visibility
 
     const handleInputs = (name: string) => {
         return (value: string) => {
@@ -53,10 +52,7 @@ const ForgetPassword = () => {
             [input]: error
         }));
     }
-    const handleMessage = (message: string, type: 'success' | 'error') => {
-        setMsg(message);
-        setMsgType(type); // Set message type (success or error)
-    };
+    const handleMessage = (text: string, type: 'success' | 'error') => setMsg({text, type});
 
     const animatedBorderColor = useRef(new Animated.Value(0)).current;
     const [focusedInput, setFocusedInput] = useState<string | null>(null); // Track focused input
@@ -87,24 +83,22 @@ const ForgetPassword = () => {
         Keyboard.dismiss();
         setLoading(true);
         setErrors({});
-        setMsg('');
+        setMsg(null);
         setTimeout(() => {
             forgot_password(inputs.email)
             .then(async (res: AxiosResponse) => {
                 const {results, message} = res.data;
                 setLoading(false);
-                setMsg(message);
-                setMsgType('success');
+                handleMessage(message, 'success');
                 console.log(results);
                 //router.push('/dashboard');
-                setErrorVisible(true); // Show the error banner
                 // Automatically hide the banner after 6 seconds
                 setTimeout(() => {
-                    setErrorVisible(false);
+                    setMsg(null);
                 }, 6000);
-            }).catch((error: AxiosError<any>) => {
+            }).catch((error: AxiosError<any>) => { 
                 setErrors({});
-                setMsg('');
+                setMsg(null);
                 setLoading(false); 
                 if (error.response) {
                     let errors = error.response.data.error;
@@ -127,26 +121,25 @@ const ForgetPassword = () => {
                 barStyle="dark-content"
                 translucent={false}
             />
-            {isErrorVisible && (
+            {msg && (
                 <View style={{
                     position: 'absolute',
                     top: 0,
                     left: 0,
                     right: 0,
                     zIndex: 10,
-                    height: 150,
-                    backgroundColor: 'white',
-                    //backgroundColor: msgType === 'error' ? 'red' : 'green',
+                    height: 170,
+                    backgroundColor: msg.type === 'error' ? 'black' : 'black',
                     justifyContent: 'center',
                     alignItems: 'center',
                     paddingHorizontal: 20,
                     opacity: 0.8
                 }} className="pt-[20px]">
                     <Text
-                        className="text-[15px] font-primary text-center"
-                        // style={{ color: msgType === 'success' ? 'green' : 'red' }}
+                        className="text-[16px] font-primary text-center"
+                        style={{ color: msg.type === 'success' ? 'green' : 'red' }}
                     >
-                        {msg}
+                        {msg.text}
                     </Text>
                 </View>
             )}

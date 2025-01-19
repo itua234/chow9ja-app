@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { 
   SafeAreaView, 
@@ -9,20 +10,18 @@ import {
   StatusBar 
 } from "react-native";
 
-interface Notification {
-    id: string;
-    title: string;
-    message: string;
-    isRead: boolean;
+interface Notification<T = any> {
+    id: string; // Unique identifier for each notification
+    type: string; // The event type (name of the socket event)
+    data: T; // The payload received with the event
+    timestamp: Date; // Timestamp when the notification was received
+    isRead: boolean; // Read status
 }
 
 const Notifications = () => {
-    const [notifications, setNotifications] = useState<Notification[]>([
-        { id: "1", title: "Welcome", message: "Thank you for joining!", isRead: false },
-        { id: "2", title: "New Update", message: "Version 2.0 is now available.", isRead: false },
-        { id: "3", title: "Reminder", message: "Don't forget your appointment tomorrow.", isRead: true },
-    ]);
-
+    const { notifications: notificationsParam } = useLocalSearchParams();
+    const notifications = notificationsParam ? JSON.parse(notificationsParam as string) : [];
+    
     const markAsRead = (id: string) => {
         setNotifications((prevNotifications) =>
             prevNotifications.map((notification) =>
@@ -48,8 +47,8 @@ const Notifications = () => {
         }>
             <TouchableOpacity onPress={() => markAsRead(item.id)}>
                 <View className="mb-[8px]">
-                    <Text className="text-lg font-bold text-gray-800">{item.title}</Text>
-                    <Text className="text-sm text-gray-600">{item.message}</Text>
+                    <Text className="text-lg font-bold text-gray-800">{item.id}</Text>
+                    <Text className="text-sm text-gray-600">{item.id}</Text>
                 </View>
             </TouchableOpacity>
         </View>
@@ -78,3 +77,10 @@ const Notifications = () => {
 };
 
 export default Notifications;
+
+
+// const [notifications, setNotifications] = useState<Notification[]>([
+    //     { id: "1", title: "Welcome", message: "Thank you for joining!", isRead: false },
+    //     { id: "2", title: "New Update", message: "Version 2.0 is now available.", isRead: false },
+    //     { id: "3", title: "Reminder", message: "Don't forget your appointment tomorrow.", isRead: true },
+    // ]);

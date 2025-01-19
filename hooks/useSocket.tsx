@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import io, { Socket, SocketOptions } from "socket.io-client";
 
 interface Notification<T = any> {
@@ -26,56 +26,65 @@ interface UseSocketReturn<T = any> {
 const useSocket = <T = any>({
     url,
     options,
-    events,
+    events
 }: UseSocketOptions): UseSocketReturn<T> => {
     const [notifications, setNotifications] = useState<Notification<T>[]>([]);
     const [notificationCount, setNotificationCount] = useState(0);
-    const [socketInstance, setSocket] = useState<Socket | null>(null); // Add this state
+    const socket = useRef<Socket | null>(null);
 
     useEffect(() => {
-        const socket: Socket = io(url, options);
-        setSocket(socket); // Store socket in state
-
-        socket.on('connect', () => {
-            console.log('Connected to notification server');
-        });
-
-        events.forEach((event) => {
-            socket.on(event, (data: T) => {
-                const newNotification: Notification<T> = {
-                    id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                    type: event,
-                    data,
-                    timestamp: new Date(),
-                    isRead: false,
-                };
-
-                setNotifications((prevNotifications) => [
-                    ...prevNotifications,
-                    newNotification,
-                ]);
-
-                setNotificationCount((prevCount) => prevCount + 1);
+        if(!socket.current){
+            socket.current = io(url, {
+                ...options,
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
             });
-        });
+            socket.current.on('connect', () => {
+                console.log('Connected to notification server');
+            });
 
-        socket.on("error", (errorMessage: string) => {
-            console.error("Error:", errorMessage);
-        });
+            events.forEach((event) => {
+                socket.current?.on(event, (data: T & { id?: string }) => {
+                    const newNotification: Notification<T> = {
+                        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Fallback if no ID
+                        type: event,
+                        data,
+                        timestamp: new Date(),
+                        isRead: false,
+                    };
 
-        socket.on('disconnect', () => {
-            console.log('Disconnected from notification server');
-        });
+                    setNotifications((prevNotifications) => [
+                        ...prevNotifications,
+                        newNotification,
+                    ]);
+
+                    setNotificationCount((prevCount) => prevCount + 1);
+                });
+            });
+
+            socket.current.on("error", (errorMessage: string) => {
+                console.error("Error:", errorMessage);
+            });
+            socket.current.on('disconnect', () => {
+                console.log('Disconnected from notification server');
+            });
+        }
 
         return () => {
-            console.log("Cleaning up socket...");
-            socket.off("connect");
-            events.forEach((event) => {
-                socket.off(event);
-            });
-            socket.disconnect();
+            if(socket.current){
+                console.log("Cleaning up socket...");
+                events.forEach((event) => {
+                    socket.current?.off(event);
+                });
+                socket.current.off("connect");
+                socket.current.off("error");
+                socket.current.off("disconnect");
+                socket.current.disconnect();
+                socket.current = null;
+            }
         };
-    }, [url, options, events]);
+    }, [url]);
 
     const resetNotificationCount = () => setNotificationCount(0);
 
@@ -88,7 +97,7 @@ const useSocket = <T = any>({
             )
         );
         // You might want to send this to your server
-        socketInstance?.emit('markAsRead');
+        socket.current?.emit('markAsRead', {notificationId});
     };
 
     const removeNotification = (notificationId: string) => {
