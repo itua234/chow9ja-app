@@ -87,3 +87,52 @@ const NotificationComponent = () => {
 };
 
 export default NotificationComponent;
+
+const requestLiveActivityPermission = async () => {
+  const granted = await LiveActivitiesManager.requestPermission();
+  if (granted) {
+    console.log('Live Activity permission granted');
+  }
+};
+
+const startDeliveryActivity = async () => {
+  const activityContent = {
+    driverName: "John Doe",
+    estimatedArrival: "15:30",
+    currentLocation: {
+      latitude: 37.7749,
+      longitude: -122.4194
+    }
+  };
+  
+  const activityId = await LiveActivitiesManager.startActivity(
+    'delivery_tracking',
+    activityContent
+  );
+};
+
+const updateDeliveryLocation = async (activityId, newLocation) => {
+  await LiveActivitiesManager.updateActivity(activityId, {
+    currentLocation: newLocation,
+    estimatedArrival: "15:45"
+  });
+};
+
+const endDeliveryTracking = async (activityId) => {
+  await LiveActivitiesManager.endActivity(activityId);
+};
+
+To make this work, you'll need to:
+
+Set up the native iOS module (requires Swift code)
+Configure your app's capabilities to include Live Activities
+Create an Activity Configuration in your iOS project
+Design your Live Activity interface using SwiftUI
+
+Important Considerations:
+
+Live Activities require iOS 16.1 or later
+You'll need an Apple Developer account
+Using Development Build means you can't use Expo Go anymore
+You'll need to submit your app through TestFlight for testing
+The community modules might not have all features of native implementation

@@ -102,7 +102,7 @@ const Signup = () => {
         //     pathname: "/verify-email",
         //     params: {email: "ituaosemeilu234@gmail.com"}
         // });
-        const payload = inputs;
+        const payload = { ...inputs }; // Creates a deep copy of the inputs object
         if (inputs.phone || inputs.phone.trim() !== "") {
             payload.phone = callingCode + inputs.phone;
         }

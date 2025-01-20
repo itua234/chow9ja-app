@@ -57,7 +57,7 @@ const Notifications = () => {
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             <StatusBar barStyle="dark-content" backgroundColor="white" />
-            <Text className="text-2xl font-bold text-center text-gray-800 my-5">
+            <Text className="font-primary text-2xl font-bold text-center text-gray-800 my-5">
                 Notifications
             </Text>
             {notifications.length > 0 ? (

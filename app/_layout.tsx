@@ -1,9 +1,3 @@
-// import { Stack } from "expo-router";
-
-// export default function RootLayout() {
-//   return <Stack />;
-// }
-
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -39,14 +33,13 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return null;  // or a loading screen
   }
 
   return (
     <ThemeProvider value={colorScheme !== 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack initialRouteName="sign-in">
-        <Stack.Screen name="(tabs)" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
-        <Stack.Screen name="splash" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* <Stack.Screen name="(tabs)" options={{headerShown: false, gestureEnabled: true, title: ''}}/> */}
         <Stack.Screen name="sign-in" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
         <Stack.Screen name="sign-up" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
         <Stack.Screen name="verify-email" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
