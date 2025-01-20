@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, Text, Image, Dimensions, Pressable, StyleSheet, FlatList, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { router } from "expo-router";
 import * as Haptics from 'expo-haptics';
-import { LinearGradient } from "expo-linear-gradient";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from "react-native-reanimated";
 
 interface Slide {
@@ -33,44 +32,31 @@ export default function index() {
     const { width: screenWidth } = Dimensions.get("window");
     const [text, setText] = useState('');
     const opacity = useSharedValue(1);
-    const dotWidth = useSharedValue(10);
+    const dotWidth = useSharedValue(40);
 
-    // const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    //     const scrollPosition = event.nativeEvent.contentOffset.x;
-    //     const currentIndex = Math.round(scrollPosition / screenWidth);
-    //     setActiveSlide(currentIndex);
-    // };
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const scrollPosition = event.nativeEvent.contentOffset.x;
-      const currentIndex = Math.round(scrollPosition / screenWidth);
-      setActiveSlide(currentIndex);
+        const scrollPosition = event.nativeEvent.contentOffset.x;
+        const currentIndex = Math.round(scrollPosition / screenWidth);
+        setActiveSlide(currentIndex);
 
-      // Animate opacity and dot width
-      opacity.value = withTiming(1, { duration: 300, easing: Easing.ease });
-      dotWidth.value = withTiming(10, { duration: 300, easing: Easing.ease });
-  };
-
-    // const renderSlide = ({ item }: { item: Slide }) => (
-    //     <View className="justify-center items-center px-[20px]" style={{ width: screenWidth }}>
-    //         <Image source={item.image} className="w-[300px] h-[300px] mb-[20px] object-contain" />
-    //         <Text className="text-center font-primary text-[24px] mb-[10px] text-[#333]">{item.title}</Text>
-    //         <Text className="text-center font-primary text-[16px] mb-[10px] text-[#666]">{item.description}</Text>
-    //     </View>
-    // );
+        // Animate opacity and dot width
+        opacity.value = withTiming(1, { duration: 300, easing: Easing.ease });
+        dotWidth.value = withTiming(10, { duration: 300, easing: Easing.ease });
+    };
 
     const renderSlide = ({ item }: { item: Slide }) => (
-      <Animated.View style={[styles.slide, { width: screenWidth, opacity }]}>
-          <Image source={item.image} style={styles.image} />
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.description}>{item.description}</Text>
-      </Animated.View>
-  );
+        <Animated.View className="justify-center items-center px-[20px]" style={{ width: screenWidth }}>
+            <Image source={item.image} className="w-[300px] h-[300px] mb-[20px] object-contain" />
+            <Text className="text-center font-primary text-[24px] mb-[10px] text-[#333]">{item.title}</Text>
+            <Text className="text-center font-primary text-[16px] mb-[10px] text-[#666]">{item.description}</Text>
+        </Animated.View>
+    );
 
-  const animatedDotStyle = useAnimatedStyle(() => {
-      return {
-          width: dotWidth.value,
-      };
-  });
+    const animatedDotStyle = useAnimatedStyle(() => {
+        return {
+            width: dotWidth.value,
+        };
+    });
 
     return (
         <View style={styles.container}>
@@ -86,20 +72,13 @@ export default function index() {
 
             <View className="flex-row justify-center my-[10px]">
                 {slides.map((_, index) => (
-                    // <View
-                    //     key={index}
-                    //     className="w-[10px] h-[10px] rounded-[5px] mx-[5px]"
-                    //     style={[
-                    //         //styles.dot,
-                    //         activeSlide === index ? styles.activeDot : styles.inactiveDot
-                    //     ]}
-                    // />
                     <Animated.View
                         key={index}
+                        className="w-[10px] h-[10px] rounded-[5px] mx-[5px]"
                         style={[
                             styles.dot,
                             activeSlide === index ? styles.activeDot : styles.inactiveDot,
-                            //activeSlide === index && animatedDotStyle
+                            activeSlide === index && animatedDotStyle
                         ]}
                     />
                 ))}
@@ -156,111 +135,23 @@ export default function index() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-      flex: 1,
-      backgroundColor: "#fff",
-  },
-  slide: {
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: 20,
-  },
-  image: {
-      width: 300,
-      height: 300,
-      marginBottom: 20,
-      resizeMode: "contain",
-  },
-  title: {
-      textAlign: "center",
-      fontSize: 24,
-      marginBottom: 10,
-      color: "#333",
-  },
-  description: {
-      textAlign: "center",
-      fontSize: 16,
-      marginBottom: 10,
-      color: "#666",
-  },
-  dotContainer: {
-      flexDirection: "row",
-      justifyContent: "center",
-      marginVertical: 10,
-  },
-  dot: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      marginHorizontal: 5,
-  },
-  activeDot: {
-      backgroundColor: "#121212",
-      //width: 40
-  },
-  inactiveDot: {
-      backgroundColor: "#ccc",
-  },
+    container: {
+        flex: 1,
+        backgroundColor: "#fff",
+    },
+    dot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        marginHorizontal: 5,
+    },
+    activeDot: {
+        backgroundColor: "#121212",
+        width: 40
+    },
+    inactiveDot: {
+        backgroundColor: "#ccc",
+    },
 });
 
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         backgroundColor: "#fff",
-//     },
-//     dot: {
-//         width: 10,
-//         height: 10,
-//         borderRadius: 5,
-//         marginHorizontal: 5,
-//     },
-//     activeDot: {
-//         backgroundColor: "#121212",
-//         width: 40
-//     },
-//     inactiveDot: {
-//         backgroundColor: "#ccc",
-//     },
-//     button: {
-//         padding: 15,
-//         alignItems: 'center',
-//         borderRadius: 5,
-//       },
-//       text: {
-//         backgroundColor: 'transparent',
-//         fontSize: 15,
-//         color: '#fff',
-//       },
-// });
-// import React, {useEffect} from "react";
-// import { Text, View, Pressable, ActivityIndicator, StatusBar } from "react-native";
-// import {router} from "expo-router";
-// import { SafeAreaView } from "react-native-safe-area-context";
-
-// export default function Index() {
-//   return (
-//     <SafeAreaView style={{flex: 1, backgroundColor: "white"}}>
-//       <StatusBar
-//             animated={true}
-//             backgroundColor="#61dafb"
-//             barStyle="dark-content" 
-//             networkActivityIndicatorVisible={true}
-//             hidden={false}
-//         />
-//       <View
-//         style={{
-//         flex: 1,
-//         justifyContent: "center",
-//         alignItems: "center",
-//         backgroundColor: "#fff", // Add background color for visibility
-//       }}
-//       >
-//         <Text>Edit app/index.tsx to edit this screen.</Text>
-//         <ActivityIndicator size="large" color="#000" />
-//         <Pressable onPress={() => router.push("/sign-in")}>
-//           <Text className="text-primary font-primary">Login</Text>
-//         </Pressable>
-//       </View>
-//       </SafeAreaView>
-//   );
-// }
+{/* <ActivityIndicator size="large" color="#000" /> */}
