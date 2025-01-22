@@ -16,6 +16,23 @@ import {
     UserData ,
     ApiResponse
 } from "@/util/types";
+import {
+    GoogleSignin,
+    GoogleSigninButton,
+    isErrorWithCode,
+    isSuccessResponse,
+    statusCodes,
+} from '@react-native-google-signin/google-signin';
+
+GoogleSignin.configure({
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, // client ID of type WEB for your server. Required to get the `idToken` on the user object, and for offline access.
+    scopes: ['https://www.googleapis.com/auth/drive.readonly'], // what API you want to access on behalf of the user, default is email and profile
+    offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+    forceCodeForRefreshToken: false, // [Android] related to `serverAuthCode`, read the docs link below *.
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID, // [iOS] if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
+});
+console.log("ios", process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
+console.log("web", process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID)
 
 interface InputsType {
     [key: string]: string;
@@ -119,7 +136,32 @@ const Signin = () => {
     }
 
     const onGooglePress = async () => {
-        alert("social button clicked")
+        alert("social button clicked");
+        try {
+            await GoogleSignin.hasPlayServices();
+            const response = await GoogleSignin.signIn();
+            if (isSuccessResponse(response)) {
+              //setState({ userInfo: response.data });
+              console.log("userInfo", response.data);
+            } else {
+              // sign in was cancelled by user
+            }
+          } catch (error) {
+            if (isErrorWithCode(error)) {
+              switch (error.code) {
+                case statusCodes.IN_PROGRESS:
+                  // operation (eg. sign in) already in progress
+                  break;
+                case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+                  // Android only, play services not available or outdated
+                  break;
+                default:
+                // some other error happened
+              }
+            } else {
+              // an error that's not related to google sign in occurred
+            }
+          }
     }
     const onFacebookPress = async () => {
         alert("social button clicked")

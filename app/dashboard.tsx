@@ -194,9 +194,12 @@ const Dashboard = () => {
         const { url } = navState;
         if(url.includes('card-subscription')) {
           console.log('Payment was successful:', url);
+          setUrl("");
           setModalVisible(!modalVisible);
           //navigation.navigate("Checkout");
         }
+        //setUrl("");
+        //setModalVisible(!modalVisible);
     };
 
     const [investments, setInvestments] = useState({});
@@ -324,7 +327,7 @@ const Dashboard = () => {
             <View className="px-[17.5] flex-1">
                 {!url ? (
                 <View>
-                    <DashboardHeader />
+                    {/* <DashboardHeader /> */}
                     <AccountBalance 
                         isBalanceVisible={isBalanceVisible} 
                         toggleBalanceVisibility={toggleBalanceVisibility}

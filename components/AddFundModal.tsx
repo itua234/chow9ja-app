@@ -34,6 +34,11 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
         outputRange: ['0%', '100%'],
         extrapolate: 'clamp'
     });
+
+    const handleNavigationStateChange = (state: WebViewNavigation) => {
+        console.log(state); // Log the navigation state
+        onNavigationStateChange(state); // Call the prop function
+    };
     
     return (
         <>
@@ -67,9 +72,10 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
                     console.warn('WebView received error status code: ', nativeEvent.statusCode);
                 }}
                 className="flex-1"
-                onNavigationStateChange={(state) => {
-                    console.log(state);
-                }}
+                onNavigationStateChange={onNavigationStateChange}
+                // onNavigationStateChange={(state) => {
+                //     console.log(state);
+                // }}
                 key={webkey}
                 onLoadStart={(syntheticEvent) => {
                     try {
