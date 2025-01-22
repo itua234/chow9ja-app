@@ -99,6 +99,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
                 rounded-[15px] ${className}
             `}
             style={{ borderColor: animatedBorderColor || '#EDF1F3' }}>
+                {/* <View className="pl-4">
+                    <SvgXml xml={seePassword ? eye : eye_off} width="24" height="24"></SvgXml>
+                </View> */}
                 <TextInput
                     className="flex-1 py-5 px-[15px] font-primary text-[#1A1C1E] text-[16px]"
                     placeholder={placeholder}
