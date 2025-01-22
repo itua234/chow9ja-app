@@ -1,0 +1,1 @@
+import { client, CustomAxiosRequestConfig } from '../config/axios-config';

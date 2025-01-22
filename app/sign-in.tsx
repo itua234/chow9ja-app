@@ -186,7 +186,7 @@ const Signin = () => {
                                 title="Log In"
                                 isLoading={isLoading} 
                                 action={Login}
-                                disabled={false}
+                                disabled={isLoading}
                             />
 
                             <Pressable onPress={() => router.push('/forgot-password')}>

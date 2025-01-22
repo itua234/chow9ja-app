@@ -10,6 +10,7 @@ interface PrimaryButtonProps {
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({
     title,
     action,
+    //variant
     disabled = false,
     isLoading = false
 }) => {

@@ -4,14 +4,14 @@
     "slug": "chow9ja",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/ziga.icon.png",
     "scheme": "chow9ja",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/ziga.icon.png",
       "imageWidth": 200,
       "resizeMode": "contain",
-      "backgroundColor": "#121212"
+      "backgroundColor": "#ffffff"
     },
     "newArchEnabled": true,
     "ios": {
@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/ziga.icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.itua234.chow9ja"
@@ -34,7 +34,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/ziga.icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#121212"

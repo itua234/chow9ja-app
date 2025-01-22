@@ -1,22 +1,41 @@
+import React, { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-//import { StatusBar } from 'expo-status-bar';
-import { StatusBar } from 'react-native';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-import '../global.css';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { ActivityIndicator, View } from 'react-native';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFonts } from 'expo-font';
+
+import { store } from '@/reducers/auth/authStore';
+import { RootState } from '@/reducers/auth/authStore';
+import { setUser, setLoading } from '@/reducers/auth/authSlice';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import 'react-native-reanimated';
+import '../global.css';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default function Layout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
+
+  return (
+    <Provider store={store}>
+      {/* <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}> */}
+        <RootLayout />
+      {/* </ThemeProvider> */}
+    </Provider>
+  );
+}
+
+function RootLayout() {
+  const dispatch = useDispatch();
+  const { isLoading } = useSelector((state: RootState) => state.auth);
+
+  const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     "Campton-Black": require('../assets/fonts/campton/CamptonBlack.otf'),
     "Campton-Light": require('../assets/fonts/campton/CamptonLight.otf'),
@@ -27,37 +46,49 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded) {
+    if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [fontsLoaded]);
 
-  if (!loaded) {
-    return null;  // or a loading screen
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        dispatch(setUser(user));
+      } else {
+        dispatch(setLoading(false));
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      dispatch(setLoading(false));
+    }
+  };
+
+  if (!fontsLoaded || isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#61dafb" />
+      </View>
+    );
   }
 
   return (
-    <ThemeProvider value={colorScheme !== 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        {/* <Stack.Screen name="(tabs)" options={{headerShown: false, gestureEnabled: true, title: ''}}/> */}
-        <Stack.Screen name="sign-in" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
-        <Stack.Screen name="sign-up" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
-        <Stack.Screen name="verify-email" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
-        <Stack.Screen name="forgot-password" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
-        <Stack.Screen name="dashboard" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
-        <Stack.Screen name="notifications" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
-        <Stack.Screen name="change-password" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
-        <Stack.Screen name="send" options={{headerShown: false, gestureEnabled: true, title: ''}}/>
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      {/* <StatusBar style="auto" /> */}
-      <StatusBar
-          animated={true}
-          backgroundColor="#61dafb"
-          barStyle="dark-content" // Ensures black text for iOS
-          networkActivityIndicatorVisible={true}
-          hidden={false}
-      />
-    </ThemeProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="sign-in" options={{ title: 'Sign In' }} />
+      <Stack.Screen name="sign-up" options={{ title: 'Sign Up' }} />
+      <Stack.Screen name="verify-email" options={{ title: 'Verify Email' }} />
+      <Stack.Screen name="forgot-password" options={{ title: 'Forgot Password' }} />
+      <Stack.Screen name="dashboard" options={{ title: 'Dashboard' }} />
+      <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
+      <Stack.Screen name="change-password" options={{ title: 'Change Password' }} />
+      <Stack.Screen name="send" options={{ title: 'Send' }} />
+      <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
+    </Stack>
   );
 }

@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, SafeAreaView, Text, Alert, Pressable, 
     TouchableWithoutFeedback, Keyboard, TextInput, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
-import {SvgXml, SvgUri} from "react-native-svg";
+import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton"
 import { AxiosResponse, AxiosError } from 'axios';
@@ -114,13 +114,6 @@ const VerifyEmail = () => {
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View className="px-[17.5] flex-1">
-                        {/* <View className="h-[7.5] w-full rounded-[20px] flex-row">
-                            <View className="bg-[#F5E8B7] h-full rounded-l-[20px] w-[20%]"></View>
-                            <View className="bg-[#89ABD940] h-full rounded-r-[20px] w-[80%]"></View>
-                        </View>
-                        <View className="flex-row justify-end">
-                            <Text className="font-semibold font-primary text-[#89ABD940]">20%</Text>
-                        </View> */}
                         <SvgXml xml={logo} width="101" height="40"></SvgXml>
                         <View className="mb-30">
                             <Text className="text-[30px] font-primary font-bold text-[#2A0944] mb-2.5">Verify your email address.</Text>

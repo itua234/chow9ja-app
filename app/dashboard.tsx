@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useState, useEffect, useRef} from 'react';
-import { Text, View, RefreshControl, FlatList, Platform, Pressable, ToastAndroid, StyleSheet, Share, Linking } from 'react-native';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import { Text, View, RefreshControl, FlatList, Platform, Pressable, ToastAndroid, StyleSheet, Share, Linking, Alert } from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {eye, eye_off, copy, arrow_up, arrow_down, ellipsis, plus, wallet} from '../util/svg';
 import TransactionCard from "@/components/TransactionCard"
@@ -23,6 +23,7 @@ import {
 } from "@/util/types";
 import InvestmentCard from "@/components/InvestmentCard"
 import { router } from 'expo-router';
+import { AxiosError, AxiosResponse } from 'axios';
 
 
 export const DashboardQuickAction = ({ 
@@ -167,14 +168,14 @@ const Dashboard = () => {
     const [msg, setMsg] = useState<string>('');
     const [errors, setErrors] = useState< ErrorsType>({});
     const [isLoading, setLoading] = useState<boolean>(false);
-    const handleFocus = (name: string) => {
+    const handleFocus = useCallback((name: string) => {
         return (value: string) => {
             setInputs(values => ({
                 ...values,
                 [name]: value
             }));
         };
-    };
+    }, []);
     const handleErrors = (error: string, input: string) => {
         setErrors(values => ({
             ...values, 
@@ -283,19 +284,19 @@ const Dashboard = () => {
         console.log("send");
         router.push("/send");
     };
-    const handleAddFunds = async () => {
-        setLoading(!isLoading);
-        // setUrl("https://twitter.com");
-        // setModalVisible(true);
-
-        fund_wallet(inputs.amount)
-        .then((response) => {
-            console.log(response.data?.results);
-            setUrl(response.data?.results?.authorization_url);
-            setModalVisible(!modalVisible);
-        }).catch((error) => {
-            setLoading(!isLoading);
-        })
+    const handleAddFunds = () => {
+        setLoading(true);
+        setTimeout(() => {
+            fund_wallet(inputs.amount)
+            .then(async (response: AxiosResponse) => {
+                setLoading(false);
+                console.log(response.data?.results);
+                setUrl(response.data?.results?.authorization_url);
+                setModalVisible(!modalVisible);
+             }).catch((error: AxiosError<any>) => {
+                setLoading(false);
+            })
+        }, 200); // Delay submission 
     };
     const handleRequest = () => {
         // Navigate to request money screen
@@ -321,75 +322,97 @@ const Dashboard = () => {
             }}
         >
             <View className="px-[17.5] flex-1">
-                <DashboardHeader />
-                <AccountBalance 
-                    isBalanceVisible={isBalanceVisible} 
-                    toggleBalanceVisibility={toggleBalanceVisibility}
-                    copyToClipboard={copyToClipboard}
-                    data={wallet}
-                />
-                <DashboardQuickAction
-                    onSendPress={handleSend}
-                    onAddFundsPress={() => refRBSheet.current.open()}
-                    onRequestPress={handleRequest}
-                    onMorePress={handleMore}
-                />
-                <DashboardActivity
-                    transactions={transactions}
-                    onSeeAll={seeAllTransactions}
-                    title="Recent Transaction"
-                />   
-
-                <RBSheet
-                ref={refRBSheet}
-                closeOnDragDown={true}
-                closeOnPressMask={false}
-                draggable={true}
-                openDuration={500}
-                height={300}
-                customStyles={styles.bottomSheet}
-                >
-                    <View className="px-7 flex-1">
-                        <View className="flex-row justify-between items-center">
-                            <Text className="text-xl font-medium font-primary">TSW12286</Text>
-                        </View>
-                        <View className="mt-5 flex-1 pb-5">
-                            <CustomInput 
-                                label="Amount"
-                                inputMode='numeric'
-                                keyboardType='phone-pad'
-                                value={inputs.amount}
-                                onChangeText={handleFocus('amount')}
-                                placeholder="0.00"
-                                editable
-                                error={errors.amount}
-                            />
-                            
-                            <PrimaryButton 
-                                title="Fund Wallet"
-                                isLoading={isLoading} 
-                                action={handleAddFunds}
-                                disabled={false}
-                            />
-                        </View>
-                    </View>
-                </RBSheet>
-
+                {!url ? (
                 <View>
-                        <FlatList
-                            data={investments}
-                            renderItem={({item}) => <InvestmentCard data={item} />}
-                            keyExtractor={(item) => item.id.toString()}
-                            scrollEnabled={false}
-                        />
-                </View>
+                    <DashboardHeader />
+                    <AccountBalance 
+                        isBalanceVisible={isBalanceVisible} 
+                        toggleBalanceVisibility={toggleBalanceVisibility}
+                        copyToClipboard={copyToClipboard}
+                        data={wallet}
+                    />
+                    <DashboardQuickAction
+                        onSendPress={handleSend}
+                        onAddFundsPress={() => refRBSheet.current.open()}
+                        onRequestPress={handleRequest}
+                        onMorePress={handleMore}
+                    />
+                    <DashboardActivity
+                        transactions={transactions}
+                        onSeeAll={seeAllTransactions}
+                        title="Recent Transaction"
+                    />   
 
-                <AddFundModal 
+                    <RBSheet
+                    ref={refRBSheet}
+                    closeOnDragDown={true}
+                    closeOnPressMask={false}
+                    draggable={true}
+                    openDuration={500}
+                    height={300}
+                    customStyles={styles.bottomSheet}
+                    >
+                        <View className="px-7 flex-1">
+                            <View className="flex-row justify-between items-center">
+                                <Text className="text-xl font-medium font-primary">TSW12286</Text>
+                            </View>
+                            {/* <View className="mt-5 flex-1 pb-5">
+                                <CustomInput 
+                                    label="Amount"
+                                    inputMode='numeric'
+                                    keyboardType='phone-pad'
+                                    value={inputs.amount}
+                                    onChangeText={handleFocus('amount')}
+                                    placeholder="0.00"
+                                    editable
+                                    error={errors.amount}
+                                />
+                                
+                                <PrimaryButton 
+                                    title="Fund Wallet"
+                                    isLoading={isLoading} 
+                                    action={handleAddFunds}
+                                    disabled={false}
+                                />
+                            </View> */}
+                        </View>
+                    </RBSheet>
+                    <View className="mt-5 flex-1 pb-5">
+                                <CustomInput 
+                                    label="Amount"
+                                    inputMode='numeric'
+                                    keyboardType='phone-pad'
+                                    value={inputs.amount}
+                                    onChangeText={handleFocus('amount')}
+                                    placeholder="0.00"
+                                    editable
+                                    error={errors.amount}
+                                />
+                                
+                                <PrimaryButton 
+                                    title="Fund Wallet"
+                                    isLoading={isLoading} 
+                                    action={handleAddFunds}
+                                    disabled={false}
+                                />
+                            </View>
+
+                
+                    <FlatList
+                        data={investments}
+                        renderItem={({item}) => <InvestmentCard data={item} />}
+                        keyExtractor={(item) => item.id.toString()}
+                        scrollEnabled={false}
+                    />
+                </View>) : 
+
+             (<AddFundModal 
                     isVisible={modalVisible}
                     onClose={handleClose}
                     url={url}
                     onNavigationStateChange={handleNavigationStateChange}
-                />
+                    onBackPress={() => setUrl('')}
+                />)}
             </View>
         </ScreenLayout>
     );
