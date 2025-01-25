@@ -8,7 +8,7 @@ import QuickActions from "../components/QuickActions"
 import DashboardHeader from "@/components/DashboardHeader"
 import ScreenLayout from "@/components/ui/ScreenLayout"
 import * as Clipboard from 'expo-clipboard';
-import {get_wallet, fund_wallet} from "@/services/api"
+import {get_wallet, fund_wallet} from "@/api"
 //import useSocket from '../hooks/useSocket';
 import RBSheet from "react-native-raw-bottom-sheet";
 import PrimaryButton from "@/components/PrimaryButton"
@@ -24,6 +24,9 @@ import {
 import InvestmentCard from "@/components/InvestmentCard"
 import { router } from 'expo-router';
 import { AxiosError, AxiosResponse } from 'axios';
+
+import { useSelector } from 'react-redux';
+import { RootState } from '@/reducers/auth/authStore';
 
 
 export const DashboardQuickAction = ({ 
@@ -156,6 +159,9 @@ interface ErrorsType {
     [key: string]: string;
 }
 const Dashboard = () => {
+    const user = useSelector((state: RootState) => state.auth.user);
+    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
     const [isBalanceVisible, setIsBalanceVisible] = useState<boolean>(true);
     const toggleBalanceVisibility = () => setIsBalanceVisible(!isBalanceVisible);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -316,6 +322,8 @@ const Dashboard = () => {
         alert("see all");
     }
 
+    //if (!user) return null;
+
     return (
         <ScreenLayout 
             className="pt-[10px]" 
@@ -327,7 +335,7 @@ const Dashboard = () => {
             <View className="px-[17.5] flex-1">
                 {!url ? (
                 <View>
-                    {/* <DashboardHeader /> */}
+                    <DashboardHeader />
                     <AccountBalance 
                         isBalanceVisible={isBalanceVisible} 
                         toggleBalanceVisibility={toggleBalanceVisibility}
@@ -381,32 +389,36 @@ const Dashboard = () => {
                         </View>
                     </RBSheet>
                     <View className="mt-5 flex-1 pb-5">
-                                <CustomInput 
-                                    label="Amount"
-                                    inputMode='numeric'
-                                    keyboardType='phone-pad'
-                                    value={inputs.amount}
-                                    onChangeText={handleFocus('amount')}
-                                    placeholder="0.00"
-                                    editable
-                                    error={errors.amount}
-                                />
-                                
-                                <PrimaryButton 
-                                    title="Fund Wallet"
-                                    isLoading={isLoading} 
-                                    action={handleAddFunds}
-                                    disabled={false}
-                                />
-                            </View>
+                        {/* <CustomInput 
+                            label="Amount"
+                            inputMode='numeric'
+                            keyboardType='phone-pad'
+                            value={inputs.amount}
+                            onChangeText={handleFocus('amount')}
+                            placeholder="0.00"
+                            editable
+                            error={errors.amount}
+                        />
+                        
+                        <PrimaryButton 
+                            title="Fund Wallet"
+                            isLoading={isLoading} 
+                            action={handleAddFunds}
+                            disabled={false}
+                        /> */}
+                    </View>
 
+                    {investments.length > 0 && (
+                        <FlatList
+                            data={investments}
+                            renderItem={({item}) => <InvestmentCard data={item} />}
+                            keyExtractor={(item) => item.id?.toString() || 'default'}
+                            scrollEnabled={false}
+                            ListEmptyComponent={<Text>No investments found</Text>}
+                        />
+                    )}
                 
-                    <FlatList
-                        data={investments}
-                        renderItem={({item}) => <InvestmentCard data={item} />}
-                        keyExtractor={(item) => item.id.toString()}
-                        scrollEnabled={false}
-                    />
+                    
                 </View>) : 
 
              (<AddFundModal 

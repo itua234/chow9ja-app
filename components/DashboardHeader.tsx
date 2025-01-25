@@ -5,8 +5,11 @@ import {bell, headphones, active_bell} from '@/util/svg';
 import useSocket from '@/hooks/useSocket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {router} from "expo-router";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/reducers/auth/authStore';
 
 const DashboardHeader = () => {
+    const user = useSelector((state: RootState) => state.auth.user);
     const {
         notifications,
         notificationCount,
@@ -18,40 +21,12 @@ const DashboardHeader = () => {
         //options: userToken ? { auth: { token: userToken } } : undefined,
         options: {
             auth: { 
-                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImZpcnN0bmFtZSI6Ikp1c3RpbiIsImxhc3RuYW1lIjoiU2t5ZSIsImVtYWlsIjoiaXR1YW9zZW1laWx1MjM0QGdtYWlsLmNvbSIsInZlcmlmaWVkIjpmYWxzZSwiaWQiOiI4NjU4YmUzMC1jZThiLTExZWYtOTMzYy0zYzUyODIyYzg3ZjIiLCJwaG9uZSI6IisyMzQ4MTE0ODAwNzY5IiwicGFzc3dvcmQiOiIkMmIkMTAkTnI5R3FpanJEbjVPZW9qSWVKejFYT2szbHJ3dHdoTTRjZ3QzVnlSWjdIc0N3UDQ3NXppWksiLCJnb29nbGVJZCI6bnVsbCwibm90aWZpY2F0aW9uc0VuYWJsZWQiOnRydWUsImVtYWlsX3ZlcmlmaWVkX2F0IjoiMjAyNS0wMS0yM1QxNDoxMjozNy4wMDBaIn0sImlhdCI6MTczNzA1NDY0MiwiZXhwIjoxNzM3MjI3NDQyfQ.Zr7X1ziQ0fRHVMd40dcQO9OiR8Z3hs2NG4PSKcMvwvM",
+                token: user?.token,
                 //room: 'general_room_1',
             }
         },
         events: ['new_message', 'user_joined', 'user_registered'] // Events to listen for
     });
-    // const [userToken, setUserToken] = useState<string | null>(null);
-    // useEffect(() => {
-    //     const getToken = async () => {
-    //         const token = await AsyncStorage.getItem('user_token');
-    //         setUserToken(token);
-    //     };
-    //     getToken();
-    // }, []);
-
-    // if (!userToken) {
-    //     return null; // Or a loading spinner
-    // }
-
-    // const socketConnection = userToken ? useSocket<MessageData>({
-    //     url: 'http://172.20.10.4:8080',
-    //     options: {
-    //         auth: { token: userToken }
-    //     },
-    //     events: ['new_message', 'user_joined', 'user_registered']
-    // }) : null;
-
-    // const {
-    //     notifications = [],
-    //     notificationCount = 0,
-    //     resetNotificationCount = () => {},
-    //     markNotificationAsRead = () => {},
-    //     removeNotification = () => {}
-    // } = socketConnection || {};
     
     const [activeTab, setActiveTab] = useState<'Finance' | 'Wallet'>('Finance');
     const walletAnim = useRef(new Animated.Value(0)).current;
@@ -77,10 +52,14 @@ const DashboardHeader = () => {
         <>
         <View className="mb-[20px] flex-row justify-between">
             <View className="flex-row items-center justify-center">
-                <Image
-                    style={{height: 40, width: 40, borderRadius: 50}}
-                    source={{uri: "https://res.cloudinary.com/capital-votes/image/upload/v1740639662/vvdkjh8futiuvfndoqep.png"}}
-                />
+                {user.photo ? (
+                    <Image
+                        style={{ height: 40, width: 40, borderRadius: 50 }}
+                        source={{ uri: user.photo }}
+                    />) :
+                (
+                    <SvgXml xml={headphones} width={40} height={40} /> // Fallback SVG
+                )}
             </View>
             <View className="bg-[white] flex-row px-[10px] rounded-[25px] h-[50px] py-[5px]">
                 <Animated.View 
@@ -118,7 +97,7 @@ const DashboardHeader = () => {
             </View>
             <View className="flex-row items-center justify-center">
                 <View className="w-[40px] h-[40px] rounded-full bg-white items-center justify-center ml-[10px]">
-                    <Text className='font-primary text-[14px]'>{notificationCount}</Text>
+                    {/* <Text className='font-primary text-[14px]'>{notificationCount}</Text> */}
                     <Pressable onPress={() => {
                         router.push({
                             pathname: '/notifications',

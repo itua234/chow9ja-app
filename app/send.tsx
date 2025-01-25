@@ -14,7 +14,7 @@ import ScreenLayout from "@/components/ui/ScreenLayout"
 import CustomInput from "@/components/CustomInput"
 import CustomPicker from "@/components/ui/CustomPicker"
 //import CustomBackButton from "../components/CustomBackButton"
-import {get_banks, fetch_account} from "../services/api"
+import {get_banks, fetch_account} from "@/api"
 
 interface BankType {
     name: string;

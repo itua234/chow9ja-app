@@ -6,18 +6,15 @@ import { Platform } from 'react-native';
 //const log = logger.createLogger();
 
 // request cancellation to avoid unnecessary network requests
-//const source = axios.CancelToken.source();
-
-//const LOCALHOST = Platform.OS === 'ios' ? 'http://127.0.0.1:8000' : 'http://10.0.2.2:8000';
-//export const API_BASE_URL = LOCALHOST + '/api/v1/';
+const source = axios.CancelToken.source();
 
 // Uncomment and use environment variables in a real-world scenario
 const appToken = process.env.EXPO_PUBLIC_APP_TOKEN;
 
 const client = axios.create({
-    //baseURL: "http://192.168.43.253:8080/api/v1/",
+    baseURL: "http://192.168.43.253:8080/api/v1/",
     //baseURL: "http://172.20.10.4:8080/api/v1/",
-    baseURL: "http://192.168.217.166:8080/api/v1/",
+    //baseURL: "http://192.168.217.166:8080/api/v1/",
     //baseURL: Platform.OS === 'ios' ? 'http://127.0.0.1:8080/api/v1/' : 'http://10.0.2.2:8080/api/v1/',
     timeout: 10000, // 10 seconds
     headers: {
@@ -144,94 +141,12 @@ const customReq = {
     },
 }
 
-// Auth API functions
-export const register = (inputs: { [key: string]: string }) => {
-    return client.post(
-        "auth/signup", 
-        inputs, 
-        { useAppToken: true } as CustomAxiosRequestConfig
-    );
-}
-
-export const login = (email: string, password: string): Promise<any> => {
-    return client.post(
-        "auth/signin", 
-        { email, password }, 
-        { useAppToken: true } as CustomAxiosRequestConfig
-    );
-}
-
-export const google_login = (inputs: { [key: string]: string }): Promise<any> => {
-    return client.post(
-        "auth/signin", 
-        inputs, 
-        { useAppToken: true } as CustomAxiosRequestConfig
-    );
-}
-
-export const get_wallet = (): Promise<any> => {
-    return client.get("user/wallet");
-}
-
-export const verify_email = (email: string, code: string) => {
-    return client.post(
-        "auth/signin", 
-        { email, code }, 
-        { useAppToken: true } as CustomAxiosRequestConfig
-    );
-}
-
-export const send_code = (email: string, purpose: string) => {
-    return client.get(
-        `auth/email/${email}/${purpose}/send-code`, 
-        { useAppToken: true } as CustomAxiosRequestConfig
-    );
-}
-
-export const verify_code =  (email: string, code: string, purpose: string): Promise<void> => {
-    return client.get(
-        `auth/email/${email}/${code}/${purpose}/verify-code`,
-        { useAppToken: true } as CustomAxiosRequestConfig
-    );
-}
-
-export const forgot_password =  (email: string): Promise<any> => {
-    return client.get(
-        `auth/email/${email}/password_reset/send-code`,
-        { useAppToken: true } as CustomAxiosRequestConfig
-    );
-}
-
-export const change_password = (inputs: { [key: string]: string }): Promise<any> => {
-    return client.post(
-        `auth/change-password`, 
-        inputs, 
-        { useAppToken: false } as CustomAxiosRequestConfig
-    );
-}
-
-export const get_flags = (): Promise<any> => {
-    //return axios.get("https://flagcdn.com/en/codes.json");
-    return axios.get("https://country-code-au6g.vercel.app/Country.json");
-}
-
-export const get_banks = () => {
-    return client.get(
-        'banks', 
-        { useAppToken: true } as CustomAxiosRequestConfig
-    );
-}
-
-export const fetch_account = (account: string, code: string | number) => {
-    return client.get(
-        `account/verify/${account}/${code}`, 
-        { useAppToken: true } as CustomAxiosRequestConfig
-    );
-}
-
-export const fund_wallet = (amount: string | number) => {
-    return client.post("fund-wallet", { amount });
-}
+export { 
+    client, 
+    customReq, 
+    customRequest,
+    CustomAxiosRequestConfig
+};
 
 // Cancel the request
-//source.cancel('Request canceled by the user.');
+source.cancel('Request canceled by the user.');

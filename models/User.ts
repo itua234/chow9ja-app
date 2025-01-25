@@ -6,6 +6,7 @@ export interface User {
     phone: string;
     password: string;
     googleId: string | null;
+    photo: string | null;
     verified: boolean;
     notificationsEnabled: boolean;
     email_verified_at: string;

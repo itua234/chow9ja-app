@@ -104,6 +104,7 @@ const Signup = () => {
                 if (error.response) {
                     let errors = error.response.data.error;
                     dispatch({ type: 'SET_API_ERRORS', errors });
+                    //dispatch(setApiErrors());
                     if (error.response.status === 400 || error.response.status === 401) {
                         handleMessage(error.response.data.message);
                     }

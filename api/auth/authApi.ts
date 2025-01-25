@@ -1,4 +1,4 @@
-import { client, CustomAxiosRequestConfig } from '../config/axios-config';
+import { client, CustomAxiosRequestConfig } from '../client';
 
 export const register = (inputs: { [key: string]: string }) => {
     return client.post(
@@ -16,6 +16,14 @@ export const login = (email: string, password: string): Promise<any> => {
     );
 }
 
+export const google_login = (inputs: { [key: string]: string | null }): Promise<any> => {
+    return client.post(
+        "auth/google_signin", 
+        inputs, 
+        { useAppToken: true } as CustomAxiosRequestConfig
+    );
+}
+
 export const verify_email = (email: string, code: string) => {
     return client.post(
         "auth/signin", 
@@ -24,14 +32,14 @@ export const verify_email = (email: string, code: string) => {
     );
 }
 
-export const forgot_password =  (email: string): Promise<void> => {
+export const forgot_password =  (email: string): Promise<any> => {
     return client.get(
         `auth/email/${email}/password_reset/send-code`,
         { useAppToken: true } as CustomAxiosRequestConfig
     );
 }
 
-export const change_password = (inputs: { [key: string]: string }): Promise<void> => {
+export const change_password = (inputs: { [key: string]: string }): Promise<any> => {
     return client.post(
         `auth/change-password`, 
         inputs, 

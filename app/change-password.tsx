@@ -41,7 +41,7 @@ const ChangePassword = () => {
                     name === 'confirm_password' ? `required|match:password`:
                     'required'
             };
-            const fieldErrors:  ErrorsType = validate({password: inputs.password, [name]: value }, rules);
+            const fieldErrors: ErrorsType = validate({password: inputs.password, [name]: value }, rules);
             //const fieldErrors:  ErrorsType = validate({ [name]: value }, rules);
             const hasError = !!fieldErrors[name];
             // Clear error if input becomes valid, or set new error
