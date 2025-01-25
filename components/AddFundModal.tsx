@@ -5,18 +5,14 @@ import WebViewProgressEvent  from 'react-native-webview';
 import {StatusBar} from "expo-status-bar";
 
 interface AddFundModalProps {
-    isVisible: boolean;
     onClose: () => void;
     url: string;
     onNavigationStateChange: (navState: WebViewNavigation) => void;
-    onBackPress: () => void; 
 }
 const AddFundModal: React.FC<AddFundModalProps>  = ({ 
-    isVisible, 
     onClose, 
     url, 
     onNavigationStateChange,
-    onBackPress 
 }) => {
     const progressAnim = useRef(new Animated.Value(0)).current;
     const [ webkey, setWebkey ] = useState(0);
@@ -34,16 +30,11 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
         outputRange: ['0%', '100%'],
         extrapolate: 'clamp'
     });
-
-    const handleNavigationStateChange = (state: WebViewNavigation) => {
-        console.log(state); // Log the navigation state
-        onNavigationStateChange(state); // Call the prop function
-    };
     
     return (
         <>
         <StatusBar style="dark" />
-        <Button title="back" onPress={onBackPress}></Button>
+        <Button title="back" onPress={onClose}></Button>
         <View className="flex-1" style={{position: "relative"}}>
             <WebView
                 source={{

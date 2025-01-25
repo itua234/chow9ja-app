@@ -9,7 +9,6 @@ import DashboardHeader from "@/components/DashboardHeader"
 import ScreenLayout from "@/components/ui/ScreenLayout"
 import * as Clipboard from 'expo-clipboard';
 import {get_wallet, fund_wallet} from "@/api"
-//import useSocket from '../hooks/useSocket';
 import RBSheet from "react-native-raw-bottom-sheet";
 import PrimaryButton from "@/components/PrimaryButton"
 import CustomInput from "@/components/CustomInput"
@@ -17,10 +16,11 @@ import AddFundModal from '@/components/AddFundModal';
 import { WebViewNavigation } from 'react-native-webview';
 import { 
     QuickActionProps, 
-    Transaction,
     DashboardActivityProps, 
     AccountBalanceProps 
 } from "@/util/types";
+import { Transaction } from "@/models/Transaction";
+import { Investment } from "@/models/Investment";
 import InvestmentCard from "@/components/InvestmentCard"
 import { router } from 'expo-router';
 import { AxiosError, AxiosResponse } from 'axios';
@@ -164,10 +164,11 @@ const Dashboard = () => {
 
     const [isBalanceVisible, setIsBalanceVisible] = useState<boolean>(true);
     const toggleBalanceVisibility = () => setIsBalanceVisible(!isBalanceVisible);
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [wallet, setWallet] = useState({});
-    //const refRBSheet = useRef();
-    //const refRBSheet = useRef<RBSheet>(null);
+
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [investments, setInvestments] = useState<Investment[]>([]);
+    
     const refRBSheet = useRef<any>(null);
 
     const [inputs, setInputs] = useState({amount: "20500"});
@@ -191,24 +192,16 @@ const Dashboard = () => {
     const handleMessage = (message: string) => setMsg(message);
 
     const [url, setUrl] = useState("");
-    const [modalVisible, setModalVisible] = useState(false);
-    const handleClose = () => {
-        setModalVisible(!modalVisible);
-        setLoading(false);
-    };
+    const handleClose = () => setUrl('');
     const handleNavigationStateChange = (navState: WebViewNavigation) => {
         const { url } = navState;
         if(url.includes('card-subscription')) {
           console.log('Payment was successful:', url);
           setUrl("");
-          setModalVisible(!modalVisible);
-          //navigation.navigate("Checkout");
+          //router.push("/checkout");
         }
-        //setUrl("");
-        //setModalVisible(!modalVisible);
     };
 
-    const [investments, setInvestments] = useState({});
     useEffect(() => {
         const fetchWallet = async () => {
             const response = await get_wallet();
@@ -301,7 +294,6 @@ const Dashboard = () => {
                 setLoading(false);
                 console.log(response.data?.results);
                 setUrl(response.data?.results?.authorization_url);
-                setModalVisible(!modalVisible);
              }).catch((error: AxiosError<any>) => {
                 setLoading(false);
             })
@@ -322,7 +314,7 @@ const Dashboard = () => {
         alert("see all");
     }
 
-    //if (!user) return null;
+    if (!user) return null;
 
     return (
         <ScreenLayout 
@@ -334,100 +326,85 @@ const Dashboard = () => {
         >
             <View className="px-[17.5] flex-1">
                 {!url ? (
-                <View>
-                    <DashboardHeader />
-                    <AccountBalance 
-                        isBalanceVisible={isBalanceVisible} 
-                        toggleBalanceVisibility={toggleBalanceVisibility}
-                        copyToClipboard={copyToClipboard}
-                        data={wallet}
-                    />
-                    <DashboardQuickAction
-                        onSendPress={handleSend}
-                        onAddFundsPress={() => refRBSheet.current.open()}
-                        onRequestPress={handleRequest}
-                        onMorePress={handleMore}
-                    />
-                    <DashboardActivity
-                        transactions={transactions}
-                        onSeeAll={seeAllTransactions}
-                        title="Recent Transaction"
-                    />   
+                    <View>
+                        <DashboardHeader />
+                        <AccountBalance 
+                            isBalanceVisible={isBalanceVisible} 
+                            toggleBalanceVisibility={toggleBalanceVisibility}
+                            copyToClipboard={copyToClipboard}
+                            data={wallet}
+                        />
+                        <DashboardQuickAction
+                            onSendPress={handleSend}
+                            onAddFundsPress={() => refRBSheet.current.open()}
+                            onRequestPress={handleRequest}
+                            onMorePress={handleMore}
+                        />
+                        <DashboardActivity
+                            transactions={transactions}
+                            onSeeAll={seeAllTransactions}
+                            title="Recent Transaction"
+                        />   
 
-                    <RBSheet
-                    ref={refRBSheet}
-                    closeOnDragDown={true}
-                    closeOnPressMask={false}
-                    draggable={true}
-                    openDuration={500}
-                    height={300}
-                    customStyles={styles.bottomSheet}
-                    >
-                        <View className="px-7 flex-1">
-                            <View className="flex-row justify-between items-center">
-                                <Text className="text-xl font-medium font-primary">TSW12286</Text>
+                        <RBSheet
+                            ref={refRBSheet}
+                            closeOnPressMask={false}
+                            closeOnPressBack={true}
+                            useNativeDriver={true}
+                            onOpen={() => console.log('RBSheet is Opened')}
+                            onClose={() => console.log('RBSheet is Closed')}
+                            draggable={true}
+                            openDuration={500}
+                            height={300}
+                            customStyles={styles.bottomSheet}
+                        >
+                            <View className="px-7 flex-1">
+                                <View className="flex-row justify-between items-center">
+                                    <Text className="text-xl font-medium font-primary">TSW12286</Text>
+                                </View>
+                                <View className="mt-5 flex-1 pb-5">
+                                    <CustomInput 
+                                        label="Amount"
+                                        inputMode='numeric'
+                                        keyboardType='phone-pad'
+                                        value={inputs.amount}
+                                        onChangeText={handleFocus('amount')}
+                                        placeholder="0.00"
+                                        editable
+                                        error={errors.amount}
+                                    />
+                                    
+                                    <PrimaryButton 
+                                        title="Fund Wallet"
+                                        isLoading={isLoading} 
+                                        action={handleAddFunds}
+                                        disabled={false}
+                                    />
+                                </View>
                             </View>
-                            {/* <View className="mt-5 flex-1 pb-5">
-                                <CustomInput 
-                                    label="Amount"
-                                    inputMode='numeric'
-                                    keyboardType='phone-pad'
-                                    value={inputs.amount}
-                                    onChangeText={handleFocus('amount')}
-                                    placeholder="0.00"
-                                    editable
-                                    error={errors.amount}
+                        </RBSheet>
+
+                        <View className="mt-5 flex-1 pb-5">
+                            {investments.length > 0 && (
+                                <FlatList
+                                    data={investments}
+                                    renderItem={({item}) => <InvestmentCard data={item} />}
+                                    keyExtractor={(item) => item.id?.toString() || 'default'}
+                                    scrollEnabled={false}
+                                    ListEmptyComponent={<Text>No investments found</Text>}
                                 />
-                                
-                                <PrimaryButton 
-                                    title="Fund Wallet"
-                                    isLoading={isLoading} 
-                                    action={handleAddFunds}
-                                    disabled={false}
-                                />
-                            </View> */}
+                            )}
                         </View>
-                    </RBSheet>
-                    <View className="mt-5 flex-1 pb-5">
-                        {/* <CustomInput 
-                            label="Amount"
-                            inputMode='numeric'
-                            keyboardType='phone-pad'
-                            value={inputs.amount}
-                            onChangeText={handleFocus('amount')}
-                            placeholder="0.00"
-                            editable
-                            error={errors.amount}
-                        />
+
                         
-                        <PrimaryButton 
-                            title="Fund Wallet"
-                            isLoading={isLoading} 
-                            action={handleAddFunds}
-                            disabled={false}
-                        /> */}
                     </View>
-
-                    {investments.length > 0 && (
-                        <FlatList
-                            data={investments}
-                            renderItem={({item}) => <InvestmentCard data={item} />}
-                            keyExtractor={(item) => item.id?.toString() || 'default'}
-                            scrollEnabled={false}
-                            ListEmptyComponent={<Text>No investments found</Text>}
-                        />
-                    )}
-                
-                    
-                </View>) : 
-
-             (<AddFundModal 
-                    isVisible={modalVisible}
-                    onClose={handleClose}
-                    url={url}
-                    onNavigationStateChange={handleNavigationStateChange}
-                    onBackPress={() => setUrl('')}
-                />)}
+                ) : (
+                    <AddFundModal 
+                        onClose={handleClose}
+                        url={url}
+                        onNavigationStateChange={handleNavigationStateChange}
+                    />
+                )}
             </View>
         </ScreenLayout>
     );
@@ -437,12 +414,12 @@ export default Dashboard;
 
 const styles = StyleSheet.create({
     bottomSheet: {
-        wrapper: {backgroundColor: "rgba(74, 74, 75, 0.8)"},
-        draggableIcon: {backgroundColor: "#F1F1F1", width: 50},
+        wrapper: { backgroundColor: "rgba(74, 74, 75, 0.8)" },
+        draggableIcon: { backgroundColor: "#F1F1F1", width: 50 },
         container: {
             borderTopRightRadius: 60,
             borderTopLeftRadius: 40,
             backgroundColor: "white"
         }
     }
-})
+} as any);
