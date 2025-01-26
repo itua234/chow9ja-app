@@ -1,13 +1,14 @@
-import React, {useRef, useState} from 'react';
-import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar, Animated, Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar, Animated, Keyboard } from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton"
 import CustomInput from "@/components/CustomInput"
-import {forgot_password} from "@/services/api"
+import CustomAlert from "@/components/ui/CustomAlert"
+import {forgot_password} from "@/api"
 import { AxiosResponse, AxiosError } from 'axios';
-import {router} from "expo-router";
 import {validate} from "@/util/validator"
+import useInputAnimation from '@/hooks/useInputAnimation';
 
 interface InputsType {
     [key: string]: string;
@@ -17,10 +18,17 @@ interface ErrorsType {
 }
 const ForgetPassword = () => {
     const [inputs, setInputs] = useState<InputsType>({email: ""});
-    const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [errors, setErrors] = useState<ErrorsType>({});
+    const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [isLoading, setLoading] = useState(false);
-    //const [isErrorVisible, setErrorVisible] = useState(false); // Control error overlay visibility
+
+    const { 
+        focusedInput, 
+        borderColor, 
+        handleFocus, 
+        handleBlur,
+        animatedBorderColor
+    } = useInputAnimation();
 
     const handleInputs = (name: string) => {
         return (value: string) => {
@@ -42,7 +50,7 @@ const ForgetPassword = () => {
             Animated.timing(animatedBorderColor, {
                 toValue: hasError ? 2 : focusedInput === name ? 1 : 0, // Error: 2, Focused: 1, Default: 0
                 duration: 300,
-                useNativeDriver: false,
+                useNativeDriver: false
             }).start();
         };
     };
@@ -53,31 +61,6 @@ const ForgetPassword = () => {
         }));
     }
     const handleMessage = (text: string, type: 'success' | 'error') => setMsg({text, type});
-
-    const animatedBorderColor = useRef(new Animated.Value(0)).current;
-    const [focusedInput, setFocusedInput] = useState<string | null>(null); // Track focused input
-    // Handle focus and blur animations
-    const handleFocus = (name: string) => {
-        setFocusedInput(name);
-        Animated.timing(animatedBorderColor, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: false,
-        }).start();
-    };
-    const handleBlur = (name: string) => {
-        setFocusedInput(null);
-        Animated.timing(animatedBorderColor, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: false,
-        }).start();
-    };
-    // Interpolated border color based on focus
-    const borderColor = animatedBorderColor.interpolate({
-        inputRange: [0, 1, 2], // 0 = default, 1 = focus, 2 = error
-        outputRange: ['#EDF1F3', '#121212', 'red'], // Default, focused, error
-    });
    
     const Submit = async () => {
         Keyboard.dismiss();
@@ -91,7 +74,6 @@ const ForgetPassword = () => {
                 setLoading(false);
                 handleMessage(message, 'success');
                 console.log(results);
-                //router.push('/dashboard');
                 // Automatically hide the banner after 6 seconds
                 setTimeout(() => {
                     setMsg(null);
@@ -121,28 +103,7 @@ const ForgetPassword = () => {
                 barStyle="dark-content"
                 translucent={false}
             />
-            {msg && (
-                <View style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    zIndex: 10,
-                    height: 170,
-                    backgroundColor: msg.type === 'error' ? 'black' : 'black',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    paddingHorizontal: 20,
-                    opacity: 0.8
-                }} className="pt-[20px]">
-                    <Text
-                        className="text-[16px] font-primary text-center"
-                        style={{ color: msg.type === 'success' ? 'green' : 'red' }}
-                    >
-                        {msg.text}
-                    </Text>
-                </View>
-            )}
+            {msg && (<CustomAlert msg={msg}/>)}
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"
