@@ -6,7 +6,7 @@ import useSocket from '@/hooks/useSocket';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {router} from "expo-router";
 import { useSelector } from 'react-redux';
-import { RootState } from '@/reducers/auth/authStore';
+import { RootState } from '@/reducers/store';
 
 const DashboardHeader = () => {
     const user = useSelector((state: RootState) => state.auth.user);

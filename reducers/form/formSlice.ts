@@ -43,6 +43,7 @@ const formSlice = createSlice({
             //const errors: ErrorsType = validate({ [field]: value }, { [field]: rules || schema[field] });
             const errors: ErrorsType = validate({ [field]: value }, rules);
             state.errors[field] = errors[field] || '';
+            console.log("validated input a")
         },
         setInput(state, action: PayloadAction<{ field: string; value: string }>) {
             const { field, value } = action.payload;
@@ -51,12 +52,20 @@ const formSlice = createSlice({
         setError(state, action: PayloadAction<{ field: string; error: string }>) {
             const { field, error } = action.payload;
             state.errors[field] = error;
+            console.log("set error a")
         },
         clearErrors(state) {
             state.errors = {};
+            console.log("clear errors")
+        },
+        resetForm(state) {
+            state.inputs = {};
+            state.errors = {};
+            console.log("form has been reset");
         },
         setApiErrors(state, action: PayloadAction<ErrorsType>) {
             state.errors = action.payload;
+            console.log("set api errors");
         },
         setChangePasswordInput(
             state, 

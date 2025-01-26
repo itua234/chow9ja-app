@@ -20,7 +20,7 @@ import {
     statusCodes
 } from '@react-native-google-signin/google-signin';
 import { useSelector, useDispatch } from 'react-redux';
-import { FormState, FormDispatch } from '@/reducers/form/formStore';
+import { RootState, AppDispatch } from '@/reducers/store';
 import { setInput, setError, clearErrors, setApiErrors, setInputAndValidate } from '@/reducers/form/formSlice';
 import { setUser, setisAuthenticated } from '@/reducers/auth/authSlice';
 //const {GoogleSignin} = React.lazy(() => import('@react-native-google-signin/google-signin'));
@@ -36,8 +36,8 @@ GoogleSignin.configure({
     forceCodeForRefreshToken: false, // [Android] related to `serverAuthCode`, read the docs link below *.
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID, // [iOS] if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
 });
-console.log("ios", process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
-console.log("web", process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID)
+// console.log("ios", process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
+// console.log("web", process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID)
 
 interface LoginResponse {
     message: string;
@@ -45,12 +45,18 @@ interface LoginResponse {
     error: boolean;
 }
 const Signin = () => {
-    const inputs = useSelector((state: FormState) => state.form.inputs);
-    const errors = useSelector((state: FormState) => state.form.errors);
-    const dispatch = useDispatch<FormDispatch>();
+    const inputs = useSelector((state: RootState) => state.form.inputs);
+    const errors = useSelector((state: RootState) => state.form.errors);
+    const dispatch = useDispatch<AppDispatch>();
     
     const [msg, setMsg] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
+
+    // useEffect(() => {
+    //     return () => {
+    //       dispatch(resetForm()); // Reset form state when component unmounts
+    //     };
+    // }, [dispatch]);
 
     const { 
         focusedInput, 
