@@ -1,35 +1,33 @@
-import React, { lazy, useCallback, Suspense, useRef, useState } from 'react';
+import React, { lazy, useCallback, Suspense, useState } from 'react';
 import { Text, View, SafeAreaView, ScrollView, Keyboard,
     KeyboardAvoidingView, Platform, Pressable, StatusBar, 
     Animated} from 'react-native';
-//import {SvgXml} from "react-native-svg";
+import {SvgXml} from "react-native-svg";
+import SocialLoginButton from "@/components/SocialLoginButton";
+import CustomInput from "@/components/CustomInput";
 import {logo, googleIcon, facebookIcon} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton";
-// import SocialLoginButton from "@/components/SocialLoginButton";
-// import CustomInput from "@/components/CustomInput";
 import {login, google_login} from "@/api"
 import {storeData} from "@/util/helper"
 import { AxiosResponse, AxiosError } from 'axios';
 import {router} from "expo-router";
-import {validate} from "@/util/validator"
-import { 
-    ApiResponse
-} from "@/util/types";
+//import { ApiResponse} from "@/util/types";
 import { User } from "@/models/User";
 import {
     GoogleSignin,
-    GoogleSigninButton,
     isErrorWithCode,
     isSuccessResponse,
-    statusCodes,
-    //SignInResponse
+    statusCodes
 } from '@react-native-google-signin/google-signin';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { FormState, FormDispatch } from '@/reducers/form/formStore';
+import { setInput, setError, clearErrors, setApiErrors, setInputAndValidate } from '@/reducers/form/formSlice';
 import { setUser, setisAuthenticated } from '@/reducers/auth/authSlice';
 //const {GoogleSignin} = React.lazy(() => import('@react-native-google-signin/google-signin'));
-const SvgXml = lazy(() => import('react-native-svg').then(module => ({ default: module.SvgXml })));
-const SocialLoginButton = lazy(() => import('@/components/SocialLoginButton'));
-const CustomInput = lazy(() => import('@/components/CustomInput'));
+// const SvgXml = lazy(() => import('react-native-svg').then(module => ({ default: module.SvgXml })));
+// const SocialLoginButton = lazy(() => import('@/components/SocialLoginButton'));
+// const CustomInput = lazy(() => import('@/components/CustomInput'));
+import useInputAnimation from '@/hooks/useInputAnimation';
 
 GoogleSignin.configure({
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, // client ID of type WEB for your server. Required to get the `idToken` on the user object, and for offline access.
@@ -41,40 +39,34 @@ GoogleSignin.configure({
 console.log("ios", process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
 console.log("web", process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID)
 
-interface InputsType {
-    [key: string]: string;
-}
-interface ErrorsType {
-    [key: string]: string;
-}
 interface LoginResponse {
     message: string;
     results: User;
     error: boolean;
 }
 const Signin = () => {
-    const [inputs, setInputs] = useState<InputsType>({});
+    const inputs = useSelector((state: FormState) => state.form.inputs);
+    const errors = useSelector((state: FormState) => state.form.errors);
+    const dispatch = useDispatch<FormDispatch>();
+    
     const [msg, setMsg] = useState<string>('');
-    const [errors, setErrors] = useState< ErrorsType>({});
     const [isLoading, setLoading] = useState<boolean>(false);
-    const dispatch = useDispatch();
+
+    const { 
+        focusedInput, 
+        borderColor, 
+        handleFocus, 
+        handleBlur,
+        animatedBorderColor
+    } = useInputAnimation();
 
     const handleInputs = (name: string) => {
         return (value: string) => {
-            setInputs(prevInputs => ({
-                ...prevInputs,
-                [name]: value
-            }));
             const rules = {
                 [name]: name === 'email' ? 'required|email' : 'required'
             };
-            const fieldErrors:  ErrorsType = validate({ [name]: value }, rules);
-            const hasError = !!fieldErrors[name];
-            // Clear error if input becomes valid, or set new error
-            setErrors(prevErrors => ({
-                ...prevErrors,
-                [name]: fieldErrors[name] || ''
-            }));
+            dispatch(setInputAndValidate({field: name, value, rules}));
+            const hasError = !!errors[name];
             // Update border color animation
             Animated.timing(animatedBorderColor, {
                 toValue: hasError ? 2 : focusedInput === name ? 1 : 0, // Error: 2, Focused: 1, Default: 0
@@ -84,42 +76,14 @@ const Signin = () => {
         };
     };
     const handleErrors = (error: string, input: string) => {
-        setErrors(values => ({
-            ...values, 
-            [input]: error
-        }));
+        dispatch(setError({field: input, error }));
     }
     const handleMessage = (message: string) => setMsg(message);
-
-    const animatedBorderColor = useRef(new Animated.Value(0)).current;
-    const [focusedInput, setFocusedInput] = useState<string | null>(null); // Track focused input
-    // Handle focus and blur animations
-    const handleFocus = useCallback((name: string) => {
-        setFocusedInput(name);
-        Animated.timing(animatedBorderColor, {
-            toValue: 1,
-            duration: 100,
-            useNativeDriver: false,
-        }).start();
-    }, [animatedBorderColor]);
-    const handleBlur = useCallback((name: string) => {
-        setFocusedInput(null);
-        Animated.timing(animatedBorderColor, {
-            toValue: 0,
-            duration: 100,
-            useNativeDriver: false,
-        }).start();
-    }, [animatedBorderColor]);
-    // Interpolated border color based on focus
-    const borderColor = animatedBorderColor.interpolate({
-        inputRange: [0, 1, 2], // 0 = default, 1 = focus, 2 = error
-        outputRange: ['#EDF1F3', '#121212', 'red'], // Default, focused, error
-    });
 
     const Login = async () => {
         Keyboard.dismiss();
         setLoading(true);
-        setErrors({});
+        dispatch(clearErrors());
         handleMessage('');
         setTimeout(() => {
             login(inputs.email, inputs.password)
@@ -132,17 +96,16 @@ const Signin = () => {
                 dispatch(setisAuthenticated(true));
                 router.push('/dashboard');
             }).catch((error: AxiosError<any>) => {
-                setErrors({});
+                dispatch(clearErrors());
                 handleMessage('');
                 setLoading(false); 
                 if (error.response) {
                     let errors = error.response.data.error;
                     if (errors) {
+                        //dispatch(setApiErrors({errors}));
                         errors.email && handleErrors(errors.email, 'email');
                         errors.password && handleErrors(errors.password, 'password');
                     }
-                    // errors.email && handleErrors(errors.email, 'email');
-                    // errors.password && handleErrors(errors.password, 'password');
                     if (error.response.status === 400 || error.response.status === 401) {
                         handleMessage(error.response.data.message);
                     }
@@ -208,9 +171,19 @@ const Signin = () => {
             }
         }
     };
-    const onFacebookPress = useCallback(async () => {
-        alert("social button clicked");
-    }, []);
+    const onFacebookPress = async () => {
+        //router.push("/dashboard");
+        const signOut = async () => {
+            try {
+                await GoogleSignin.signOut();
+                dispatch(setUser(null));
+                dispatch(setisAuthenticated(false));
+                console.log("user has been signed out of google");
+            } catch (error) {
+                console.error(error);
+            }
+        };
+    };
     
     return (
         <SafeAreaView className="flex-1 bg-white pt-[20px]">
@@ -277,7 +250,7 @@ const Signin = () => {
                             />
 
                             <Pressable onPress={() => router.push('/forgot-password')}>
-                                <Text className="text-primary font-primary text-right mt-[13px]">Forgot your Password?</Text>
+                                <Text className="text-primary font-primary text-right mt-[15px]">Forgot your Password?</Text>
                             </Pressable>
                         </View>
 

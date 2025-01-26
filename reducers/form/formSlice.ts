@@ -34,13 +34,14 @@ const formSlice = createSlice({
             action: PayloadAction<{ 
                 field: string; 
                 value: string;
-                rules?: string
+                rules: {[key: string]: string}
             }>
         ) {
             const { field, value, rules } = action.payload;
             state.inputs[field] = value;
 
-            const errors: ErrorsType = validate({ [field]: value }, { [field]: rules || schema[field] });
+            //const errors: ErrorsType = validate({ [field]: value }, { [field]: rules || schema[field] });
+            const errors: ErrorsType = validate({ [field]: value }, rules);
             state.errors[field] = errors[field] || '';
         },
         setInput(state, action: PayloadAction<{ field: string; value: string }>) {

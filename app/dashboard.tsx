@@ -26,7 +26,7 @@ import { router } from 'expo-router';
 import { AxiosError, AxiosResponse } from 'axios';
 
 import { useSelector } from 'react-redux';
-import { RootState } from '@/reducers/auth/authStore';
+import { AuthState } from '@/reducers/auth/authStore';
 
 
 export const DashboardQuickAction = ({ 
@@ -159,8 +159,8 @@ interface ErrorsType {
     [key: string]: string;
 }
 const Dashboard = () => {
-    const user = useSelector((state: RootState) => state.auth.user);
-    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+    const user = useSelector((state: AuthState) => state.auth.user);
+    const isAuthenticated = useSelector((state: AuthState) => state.auth.isAuthenticated);
 
     const [isBalanceVisible, setIsBalanceVisible] = useState<boolean>(true);
     const toggleBalanceVisibility = () => setIsBalanceVisible(!isBalanceVisible);
@@ -348,9 +348,8 @@ const Dashboard = () => {
 
                         <RBSheet
                             ref={refRBSheet}
-                            closeOnPressMask={false}
                             closeOnPressBack={true}
-                            useNativeDriver={true}
+                            closeOnPressMask={false}
                             onOpen={() => console.log('RBSheet is Opened')}
                             onClose={() => console.log('RBSheet is Closed')}
                             draggable={true}

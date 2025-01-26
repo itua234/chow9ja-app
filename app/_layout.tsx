@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
 
 import { store } from '@/reducers/auth/authStore';
-import { RootState } from '@/reducers/auth/authStore';
+import { AuthState } from '@/reducers/auth/authStore';
 import { setUser, setLoading } from '@/reducers/auth/authSlice';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -33,7 +33,7 @@ export default function Layout() {
 
 function RootLayout() {
   const dispatch = useDispatch();
-  const { isLoading } = useSelector((state: RootState) => state.auth);
+  const { isLoading } = useSelector((state: AuthState) => state.auth);
 
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),

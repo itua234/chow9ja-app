@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { View, Modal, SafeAreaView, Animated,StyleSheet, Button } from 'react-native';
 import { WebView, WebViewNavigation } from 'react-native-webview';
-import WebViewProgressEvent  from 'react-native-webview';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import {StatusBar} from "expo-status-bar";
 
 interface AddFundModalProps {
@@ -15,7 +15,6 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
     onNavigationStateChange,
 }) => {
     const progressAnim = useRef(new Animated.Value(0)).current;
-    const [ webkey, setWebkey ] = useState(0);
     
     const onLoadProgress = (event: { nativeEvent: { progress: number } }) => {
         Animated.timing(progressAnim, {
@@ -64,17 +63,21 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
                 }}
                 className="flex-1"
                 onNavigationStateChange={onNavigationStateChange}
-                // onNavigationStateChange={(state) => {
-                //     console.log(state);
-                // }}
-                key={webkey}
-                onLoadStart={(syntheticEvent) => {
-                    try {
-                        const { nativeEvent } = syntheticEvent;
-                        if (nativeEvent.url === 'about:blank') {
-                            setWebkey(webkey=>webkey+1);
-                        }
-                    } catch { }
+                onShouldStartLoadWithRequest={(request) => {
+                    if (request.url.includes('card-subscription')) {
+                        console.log('Payment success detected. Fetching JSON...', request.url);
+                        axios.get(request.url)
+                        .then((response) => {
+                            console.log('Received JSON:', response.data);
+                            // Handle the response data as needed
+                            // onClose(); // Close WebView modal if required
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching JSON:', error);
+                        });
+                        return false; // Prevent the WebView from loading
+                    }
+                    return true; // Allow other requests
                 }}
             />
             <Animated.View style={[
