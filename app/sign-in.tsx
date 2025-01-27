@@ -1,4 +1,4 @@
-import React, { lazy, useCallback, Suspense, useState } from 'react';
+import React, { lazy, useCallback, Suspense, useState, useEffect } from 'react';
 import { Text, View, SafeAreaView, ScrollView, Keyboard,
     KeyboardAvoidingView, Platform, Pressable, StatusBar, 
     Animated} from 'react-native';
@@ -21,7 +21,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/reducers/store';
-import { setInput, setError, clearErrors, setApiErrors, setInputAndValidate } from '@/reducers/form/formSlice';
+import { setError, clearErrors, setApiErrors, setInputAndValidate, resetForm } from '@/reducers/form/formSlice';
 import { setUser, setisAuthenticated } from '@/reducers/auth/authSlice';
 //const {GoogleSignin} = React.lazy(() => import('@react-native-google-signin/google-signin'));
 // const SvgXml = lazy(() => import('react-native-svg').then(module => ({ default: module.SvgXml })));
@@ -36,8 +36,6 @@ GoogleSignin.configure({
     forceCodeForRefreshToken: false, // [Android] related to `serverAuthCode`, read the docs link below *.
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID, // [iOS] if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
 });
-// console.log("ios", process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
-// console.log("web", process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID)
 
 interface LoginResponse {
     message: string;
@@ -48,15 +46,15 @@ const Signin = () => {
     const inputs = useSelector((state: RootState) => state.form.inputs);
     const errors = useSelector((state: RootState) => state.form.errors);
     const dispatch = useDispatch<AppDispatch>();
-    
+    useEffect(() => {
+        dispatch(resetForm()); // Reset form state when component mounts
+        return () => {
+            dispatch(resetForm()); // Reset form state when component unmounts
+        };
+    }, [dispatch]);
+
     const [msg, setMsg] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
-
-    // useEffect(() => {
-    //     return () => {
-    //       dispatch(resetForm()); // Reset form state when component unmounts
-    //     };
-    // }, [dispatch]);
 
     const { 
         focusedInput, 
@@ -89,7 +87,7 @@ const Signin = () => {
     const Login = async () => {
         Keyboard.dismiss();
         setLoading(true);
-        dispatch(clearErrors());
+        //dispatch(clearErrors());
         handleMessage('');
         setTimeout(() => {
             login(inputs.email, inputs.password)
@@ -108,9 +106,9 @@ const Signin = () => {
                 if (error.response) {
                     let errors = error.response.data.error;
                     if (errors) {
-                        //dispatch(setApiErrors({errors}));
-                        errors.email && handleErrors(errors.email, 'email');
-                        errors.password && handleErrors(errors.password, 'password');
+                        dispatch(setApiErrors(errors));
+                        //errors.email && handleErrors(errors.email, 'email');
+                        //errors.password && handleErrors(errors.password, 'password');
                     }
                     if (error.response.status === 400 || error.response.status === 401) {
                         handleMessage(error.response.data.message);
@@ -195,7 +193,7 @@ const Signin = () => {
         <SafeAreaView className="flex-1 bg-white pt-[20px]">
             <StatusBar
                 animated={true}
-                backgroundColor="#61dafb"
+                backgroundColor="#fff"
                 barStyle="dark-content" // Ensures black text for iOS
                 networkActivityIndicatorVisible={true}
                 hidden={false}

@@ -46,3 +46,17 @@ export const change_password = (inputs: { [key: string]: string }): Promise<any>
         { useAppToken: false } as CustomAxiosRequestConfig
     );
 }
+
+export const send_code = (email: string, purpose: string): Promise<any> => {
+    return client.get(
+        `auth/email/${email}/${purpose}/send-code`, 
+        { useAppToken: true } as CustomAxiosRequestConfig
+    );
+}
+
+export const verify_code =  (email: string, code: string, purpose: string): Promise<any> => {
+    return client.get(
+        `auth/email/${email}/${code}/${purpose}/verify-code`,
+        { useAppToken: true } as CustomAxiosRequestConfig
+    );
+}

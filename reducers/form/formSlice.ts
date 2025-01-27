@@ -39,11 +39,8 @@ const formSlice = createSlice({
         ) {
             const { field, value, rules } = action.payload;
             state.inputs[field] = value;
-
-            //const errors: ErrorsType = validate({ [field]: value }, { [field]: rules || schema[field] });
             const errors: ErrorsType = validate({ [field]: value }, rules);
             state.errors[field] = errors[field] || '';
-            console.log("validated input a")
         },
         setInput(state, action: PayloadAction<{ field: string; value: string }>) {
             const { field, value } = action.payload;
@@ -52,48 +49,43 @@ const formSlice = createSlice({
         setError(state, action: PayloadAction<{ field: string; error: string }>) {
             const { field, error } = action.payload;
             state.errors[field] = error;
-            console.log("set error a")
         },
         clearErrors(state) {
             state.errors = {};
-            console.log("clear errors")
         },
         resetForm(state) {
             state.inputs = {};
             state.errors = {};
-            console.log("form has been reset");
         },
         setApiErrors(state, action: PayloadAction<ErrorsType>) {
             state.errors = action.payload;
-            console.log("set api errors");
         },
         setChangePasswordInput(
             state, 
             action: PayloadAction<{ 
-                name: string; 
+                field: string; 
                 value: string;
                 inputs: InputsType 
             }>
         ) {
-            const { name, value, inputs } = action.payload;
+            const { field, value, inputs } = action.payload;
+            state.inputs[field] = value;
             // Reset confirm_password if password is changed
-            if (name === 'password') {
+            if (field === 'password') {
                 state.inputs['confirm_password'] = '';
             }
             const rules = {
-                [name]: 
-                    name === 'current_password' ? 'required' :
-                    name === 'password' ? 'required|min:8|number|special' :
-                    name === 'confirm_password' ? `required|match:password` :
+                [field]: 
+                    field === 'current_password' ? 'required' :
+                    field === 'password' ? 'required|min:8|number|special' :
+                    field === 'confirm_password' ? `required|match:password` :
                     'required'
             };
-            const fieldErrors: ErrorsType = validate(
-                { password: inputs.password, [name]: value }, 
+            const errors: ErrorsType = validate(
+                { password: inputs.password, [field]: value }, 
                 rules
             );
-
-            state.inputs[name] = value;
-            state.errors[name] = fieldErrors[name] || '';
+            state.errors[field] = errors[field] || '';
         }
     },
 });
@@ -104,6 +96,7 @@ export const {
     setError, 
     clearErrors, 
     setApiErrors,
-    setChangePasswordInput
+    setChangePasswordInput,
+    resetForm
 } = formSlice.actions;
 export default formSlice.reducer;

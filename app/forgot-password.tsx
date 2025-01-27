@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Text, View, SafeAreaView, KeyboardAvoidingView, Platform, StatusBar, Animated, Keyboard } from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
@@ -7,18 +7,22 @@ import CustomInput from "@/components/CustomInput"
 import CustomAlert from "@/components/ui/CustomAlert"
 import {forgot_password} from "@/api"
 import { AxiosResponse, AxiosError } from 'axios';
-import {validate} from "@/util/validator"
 import useInputAnimation from '@/hooks/useInputAnimation';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/reducers/store';
+import { setError, clearErrors, setApiErrors, setInputAndValidate, resetForm } from '@/reducers/form/formSlice';
 
-interface InputsType {
-    [key: string]: string;
-}
-interface ErrorsType {
-    [key: string]: string;
-}
 const ForgetPassword = () => {
-    const [inputs, setInputs] = useState<InputsType>({email: ""});
-    const [errors, setErrors] = useState<ErrorsType>({});
+    const inputs = useSelector((state: RootState) => state.form.inputs);
+    const errors = useSelector((state: RootState) => state.form.errors);
+    const dispatch = useDispatch<AppDispatch>();
+    useEffect(() => {
+        dispatch(resetForm()); // Reset form state when component mounts
+        return () => {
+            dispatch(resetForm()); // Reset form state when component unmounts
+        };
+    }, [dispatch]);
+
     const [msg, setMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
     const [isLoading, setLoading] = useState(false);
 
@@ -32,40 +36,28 @@ const ForgetPassword = () => {
 
     const handleInputs = (name: string) => {
         return (value: string) => {
-            setInputs(prevInputs => ({
-                ...prevInputs,
-                [name]: value
-            }));
             const rules = {
                 [name]: name === 'email' ? 'required|email' : 'required'
             };
-            const fieldErrors:  ErrorsType = validate({ [name]: value }, rules);
-            const hasError = !!fieldErrors[name];
-            // Clear error if input becomes valid, or set new error
-            setErrors(prevErrors => ({
-                ...prevErrors,
-                [name]: fieldErrors[name] || ''
-            }));
+            dispatch(setInputAndValidate({field: name, value, rules}));
+            const hasError = !!errors[name];
             // Update border color animation
             Animated.timing(animatedBorderColor, {
                 toValue: hasError ? 2 : focusedInput === name ? 1 : 0, // Error: 2, Focused: 1, Default: 0
-                duration: 300,
-                useNativeDriver: false
+                duration: 100,
+                useNativeDriver: false,
             }).start();
         };
     };
     const handleErrors = (error: string, input: string) => {
-        setErrors(values => ({
-            ...values, 
-            [input]: error
-        }));
+        dispatch(setError({field: input, error }));
     }
     const handleMessage = (text: string, type: 'success' | 'error') => setMsg({text, type});
    
     const Submit = async () => {
         Keyboard.dismiss();
         setLoading(true);
-        setErrors({});
+        dispatch(clearErrors());
         setMsg(null);
         setTimeout(() => {
             forgot_password(inputs.email)
@@ -79,12 +71,15 @@ const ForgetPassword = () => {
                     setMsg(null);
                 }, 6000);
             }).catch((error: AxiosError<any>) => { 
-                setErrors({});
+                dispatch(clearErrors());
                 setMsg(null);
                 setLoading(false); 
                 if (error.response) {
                     let errors = error.response.data.error;
-                    errors.email && handleErrors(errors.email, 'email');
+                    if (errors) {
+                        //dispatch(setApiErrors({errors}));
+                        errors.email && handleErrors(errors.email, 'email');
+                    }
                     if (error.response.status === 400 || error.response.status === 401) {
                         handleMessage(error.response.data.message, 'error');
                     }

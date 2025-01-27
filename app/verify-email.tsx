@@ -6,7 +6,7 @@ import {logo} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton"
 import { AxiosResponse, AxiosError } from 'axios';
 import { useLocalSearchParams, router } from "expo-router";
-import { send_code, verify_code } from "@/services/api"
+import { send_code, verify_code } from "@/api"
 import { storeData } from '@/util/helper';
 import { useOTP } from '../hooks/useOTP';
 import { useResendTimer } from '../hooks/useResendTimer';
