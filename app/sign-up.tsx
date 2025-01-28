@@ -19,15 +19,6 @@ import {
 } from "@/util/types";
 import { formReducer, initialState, FormState, FormAction, ErrorsType } from '../reducers/formReducer';
 
-// import { useSelector, useDispatch } from 'react-redux';
-// import { RootState, AppDispatch } from '@/store';
-// import { setInput, setError, clearErrors, setApiErrors } from '@/formSlice';
-// interface InputsType {
-//     [key: string]: string;
-// }
-// interface ErrorsType {
-//     [key: string]: string;
-// }
 const Signup = () => {
     // const formState = useSelector((state: RootState) => state.form);
     // const dispatch = useDispatch<AppDispatch>();

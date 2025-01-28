@@ -28,6 +28,7 @@ import { setUser, setisAuthenticated } from '@/reducers/auth/authSlice';
 // const SocialLoginButton = lazy(() => import('@/components/SocialLoginButton'));
 // const CustomInput = lazy(() => import('@/components/CustomInput'));
 import useInputAnimation from '@/hooks/useInputAnimation';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 GoogleSignin.configure({
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, // client ID of type WEB for your server. Required to get the `idToken` on the user object, and for offline access.
@@ -188,6 +189,42 @@ const Signin = () => {
             }
         };
     };
+    const handleAppleSignIn = async () => {
+        if(Platform.OS === "ios"){
+            try {
+                const credential = await AppleAuthentication.signInAsync({
+                    requestedScopes: [
+                        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                    ],
+                });
+                // Handle the credential (e.g., send it to your backend for verification)
+                //setUserInfo(credential);
+                console.log('Apple Sign-In successful:', credential);
+            }catch (error: any) {
+                if (error.code === 'ERR_CANCELED') {
+                    console.log('Apple Sign-In was canceled by the user.');
+                } else {
+                    console.error('Apple Sign-In failed:', error);
+                }
+            }
+        }
+    };
+    const handleAppleSignOut = async () => {
+        // try {
+        //   await AppleAuthentication.signOutAsync();
+        //   setUserInfo(null);
+        //   console.log('Apple Sign-Out successful');
+        // } catch (error) {
+        //   console.error('Apple Sign-Out failed:', error);
+        // }
+    };
+    // const isAppleSignInAvailable = await AppleAuthentication.isAvailableAsync();
+    // if (isAppleSignInAvailable) {
+    // // Apple Sign-In is available
+    // } else {
+    // // Apple Sign-In is not available
+    // }
     
     return (
         <SafeAreaView className="flex-1 bg-white pt-[20px]">
@@ -269,6 +306,13 @@ const Signin = () => {
                                 text="Continue with Facebook"
                                 onPress={onFacebookPress}
                             />
+                            {/* <AppleAuthentication.AppleAuthenticationButton
+                                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                                cornerRadius={5}
+                                style={{ width: 200, height: 44 }}
+                                onPress={handleAppleSignIn}
+                            /> */}
 
                             <View className="mt-[15px] flex-row justify-center">
                                 <Text className="font-primary mr-[5px]">Don't have an account?</Text>

@@ -15,7 +15,9 @@
     },
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "usesAppleSignIn": true,
+      "bundleIdentifier": "com.itua234.chow9ja"
     },
     "android": {
       "adaptiveIcon": {
@@ -45,7 +47,8 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.255095568241-fbu560u0doll0a1h6arq0avblqiahr1a"
         }
-      ]
+      ],
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": true
