@@ -324,9 +324,9 @@ const Dashboard = () => {
                 //refreshControl: <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> 
             }}
         >
-            <View className="px-[17.5] flex-1">
+            <View className="flex-1">
                 {!url ? (
-                    <View>
+                    <View  className="px-[17.5] flex-1">
                         <DashboardHeader />
                         <AccountBalance 
                             isBalanceVisible={isBalanceVisible} 
@@ -383,7 +383,7 @@ const Dashboard = () => {
                             </View>
                         </RBSheet>
 
-                        <View className="mt-5 flex-1 pb-5">
+                        {/* <View className="mt-5 flex-1 pb-5">
                             {investments.length > 0 && (
                                 <FlatList
                                     data={investments}
@@ -393,7 +393,7 @@ const Dashboard = () => {
                                     ListEmptyComponent={<Text>No investments found</Text>}
                                 />
                             )}
-                        </View>
+                        </View> */}
 
                         
                     </View>
@@ -403,6 +403,9 @@ const Dashboard = () => {
                         url={url}
                         onNavigationStateChange={handleNavigationStateChange}
                     />
+                    // <View className="flex-1 bg-[#4884DF]">
+                        
+                    // </View>
                 )}
             </View>
         </ScreenLayout>

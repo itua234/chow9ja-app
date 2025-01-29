@@ -1,6 +1,6 @@
 import { client, CustomAxiosRequestConfig } from '../client';
 
-export const register = (inputs: { [key: string]: string }) => {
+export const register = (inputs: { [key: string]: string }): Promise<any> => {
     return client.post(
         "auth/signup", 
         inputs, 

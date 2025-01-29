@@ -211,13 +211,13 @@ const Signin = () => {
         }
     };
     const handleAppleSignOut = async () => {
-        // try {
-        //   await AppleAuthentication.signOutAsync();
-        //   setUserInfo(null);
-        //   console.log('Apple Sign-Out successful');
-        // } catch (error) {
-        //   console.error('Apple Sign-Out failed:', error);
-        // }
+        try {
+            //await AppleAuthentication.signOutAsync();
+            //setUserInfo(null);
+            console.log('Apple Sign-Out successful');
+        } catch (error) {
+          console.error('Apple Sign-Out failed:', error);
+        }
     };
     // const isAppleSignInAvailable = await AppleAuthentication.isAvailableAsync();
     // if (isAppleSignInAvailable) {

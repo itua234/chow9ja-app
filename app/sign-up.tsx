@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, 
     SafeAreaView, ScrollView, TextInput, Image, Keyboard,
     KeyboardAvoidingView, TouchableOpacity,
@@ -9,23 +9,30 @@ import PrimaryButton from "@/components/PrimaryButton";
 import CustomInput from "@/components/CustomInput";
 import CustomPicker from "@/components/ui/CustomPicker"
 import {register, get_flags} from "../services/api"
-import {storeData} from "@/util/helper"
 import { AxiosResponse, AxiosError } from 'axios';
 import {router} from "expo-router";
 import * as Haptics from 'expo-haptics';
-import { validate } from '@/util/validator';
 import { 
     Country
 } from "@/util/types";
-import { formReducer, initialState, FormState, FormAction, ErrorsType } from '../reducers/formReducer';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/reducers/store';
+import { setInput, setError, clearErrors, setApiErrors, setInputAndValidate, resetForm } from '@/reducers/form/formSlice';
 
 const Signup = () => {
-    // const formState = useSelector((state: RootState) => state.form);
-    // const dispatch = useDispatch<AppDispatch>();
-    const [formState, dispatch] = useReducer(formReducer, initialState);
+    const inputs = useSelector((state: RootState) => state.form.inputs);
+    const errors = useSelector((state: RootState) => state.form.errors);
+    const dispatch = useDispatch<AppDispatch>();
+    useEffect(() => {
+        dispatch(resetForm()); // Reset form state when component mounts
+        return () => {
+            dispatch(resetForm()); // Reset form state when component unmounts
+        };
+    }, [dispatch]);
+
     const [msg, setMsg] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
-    //const [countryCode, setCountryCode] = useState('NG');
+
     const [callingCode, setCallingCode] = useState<string>('+234');
     const [flagUrl, setFlagUrl] = useState<string>('https://flagcdn.com/w320/ng.png'); // Default flag
     const [showCountryPicker, setShowCountryPicker] = useState<boolean>(false);
@@ -35,7 +42,7 @@ const Signup = () => {
         const flagUrl = `https://flagcdn.com/w320/${country.code.toLowerCase()}.png`;
         setFlagUrl(flagUrl);
         setCallingCode(country.dial_code);
-        dispatch({ type: 'SET_INPUT', field: 'phone', value: '' });
+        dispatch(setInput({ field: 'phone', value: '' }));
     };
 
     // Custom render function for countries
@@ -59,10 +66,23 @@ const Signup = () => {
         fetchCountries();
     }, []);
 
-    const handleInputs = (name: string) => (value: string) => {
-        dispatch({ type: 'SET_INPUT', field: name, value });
-        //dispatch(setInput({ field: name, value }));
+    const handleInputs = (name: string) => {
+        return (value: string) => {
+            const rules = {
+                [name]: name === 'email' 
+                    ? 'required|email' 
+                    : name === 'phone'
+                    ? 'required|number|min:10'
+                    : name === 'password'
+                    ? 'required|min:8|number|special'
+                    : 'required'
+            };
+            dispatch(setInputAndValidate({field: name, value, rules}));
+        };
     };
+    const handleErrors = (error: string, input: string) => {
+        dispatch(setError({field: input, error }));
+    }
     const handleMessage = (message: string) => setMsg(message);
 
     const Signup = async () => {
@@ -70,14 +90,13 @@ const Signup = () => {
         //     pathname: "/verify-email",
         //     params: {email: "ituaosemeilu234@gmail.com"}
         // });
-        const payload = { ...formState.inputs };  // Creates a deep copy of the inputs object
-        if (formState.inputs.phone && formState.inputs.phone.trim() !== "") {
-            payload.phone = callingCode + formState.inputs.phone;
+        const payload = { ...inputs };  // Creates a deep copy of the inputs object
+        if (inputs.phone && inputs.phone.trim() !== "") {
+            payload.phone = callingCode + inputs.phone;
         }
         Keyboard.dismiss();
         setLoading(true);
-        dispatch({ type: 'CLEAR_ERRORS' });
-        //dispatch(clearErrors());
+        dispatch(clearErrors());
         handleMessage('');
         setTimeout(() => {
             register(payload)
@@ -89,13 +108,12 @@ const Signup = () => {
                     params: {email: res.data?.results}
                 });
             }).catch((error: AxiosError<any>) => {
-                dispatch({ type: 'CLEAR_ERRORS' });
+                dispatch(clearErrors());
                 handleMessage('');
                 setLoading(false); 
                 if (error.response) {
                     let errors = error.response.data.error;
-                    dispatch({ type: 'SET_API_ERRORS', errors });
-                    //dispatch(setApiErrors());
+                    dispatch(setApiErrors(errors));
                     if (error.response.status === 400 || error.response.status === 401) {
                         handleMessage(error.response.data.message);
                     }
@@ -137,28 +155,28 @@ const Signup = () => {
                             <CustomInput 
                                 label="First Name"
                                 type="text"
-                                value={formState.inputs.firstname}
+                                value={inputs.firstname}
                                 onChangeText={handleInputs("firstname")}
                                 placeholder="Enter your firstname"
-                                error={formState.errors.firstname}
+                                error={errors.firstname}
                             />
                         
                             <CustomInput 
                                 label="Last Name"
                                 type="text"
-                                value={formState.inputs.lastname}
+                                value={inputs.lastname}
                                 onChangeText={handleInputs("lastname")}
                                 placeholder="Enter your lastname"
-                                error={formState.errors.lastname}
+                                error={errors.lastname}
                             />
 
                             <CustomInput 
                                 label="Email"
                                 type="email"
-                                value={formState.inputs.email}
+                                value={inputs.email}
                                 onChangeText={handleInputs("email")}
                                 placeholder="Enter your email"
-                                error={formState.errors.email}
+                                error={errors.email}
                             />
                             
                             <View className="">
@@ -184,7 +202,7 @@ const Signup = () => {
                                         className="flex-1 py-5 px-[15px] font-primary text-[#1A1C1E] text-[16px]"
                                         placeholder="Enter your phone"
                                         placeholderTextColor={"#6C7278"}
-                                        value={formState.inputs.phone}
+                                        value={inputs.phone}
                                         onChangeText={handleInputs("phone")}
                                         inputMode='tel'
                                         keyboardType='phone-pad'
@@ -192,15 +210,15 @@ const Signup = () => {
                                     />
                                 </View>
                             </View>
-                            {formState.errors.phone && <Text className="text-[16px] text-red-500 mt-1 font-primary">{formState.errors.phone}</Text>}
+                            {errors.phone && <Text className="text-[16px] text-red-500 mt-1 font-primary">{errors.phone}</Text>}
 
                             <CustomInput 
                                 label="Password"
                                 type="password"
-                                value={formState.inputs.password}
+                                value={inputs.password}
                                 onChangeText={handleInputs("password")}
                                 placeholder="Enter your password"
-                                error={formState.errors.password}
+                                error={errors.password}
                             />
                             
                             <PrimaryButton 
