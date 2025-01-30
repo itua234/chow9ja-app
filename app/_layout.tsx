@@ -80,6 +80,7 @@ function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" options={{ title: 'Tabs' }} />
       <Stack.Screen name="sign-in" options={{ title: 'Sign In' }} />
       <Stack.Screen name="sign-up" options={{ title: 'Sign Up' }} />
       <Stack.Screen name="verify-email" options={{ title: 'Verify Email' }} />

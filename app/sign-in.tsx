@@ -139,7 +139,7 @@ const Signin = () => {
                     // Dispatch the user and set authentication status
                     dispatch(setUser(user));
                     dispatch(setisAuthenticated(true));
-                    router.push('/dashboard');
+                    router.push('/(tabs)');
                 }).catch((error: AxiosError<any>) => {
                     handleMessage('');
                     if (error.response) {
