@@ -403,9 +403,6 @@ const Dashboard = () => {
                         url={url}
                         onNavigationStateChange={handleNavigationStateChange}
                     />
-                    // <View className="flex-1 bg-[#4884DF]">
-                        
-                    // </View>
                 )}
             </View>
         </ScreenLayout>

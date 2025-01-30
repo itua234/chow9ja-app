@@ -7,6 +7,8 @@ import { ActivityIndicator, View } from 'react-native';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
+import {SvgXml} from "react-native-svg";
+import {groundforce_logo} from '@/util/svg';
 
 import { store } from '@/reducers/store';
 import { RootState } from '@/reducers/store';
@@ -72,8 +74,15 @@ function RootLayout() {
 
   if (!fontsLoaded || isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#61dafb" />
+      // <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      //   <ActivityIndicator size="large" color="#61dafb" />
+      // </View>
+      <View className="flex-1 items-center justify-center bg-[#4884DF]">
+        <SvgXml
+            xml={groundforce_logo}
+            width="200"
+            height="30"
+        />
       </View>
     );
   }

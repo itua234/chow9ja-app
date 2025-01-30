@@ -8,10 +8,10 @@
     "scheme": "chow9ja",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/ziga.icon.png",
+      "image": "./assets/images/groundforce.icon.svg",
       "imageWidth": 200,
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4884DF"
     },
     "newArchEnabled": true,
     "ios": {
@@ -22,7 +22,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/ziga.icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4884DF"
       },
       "package": "com.itua234.chow9ja"
     },
@@ -36,10 +36,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/ziga.icon.png",
+          "image": "./assets/images/groundforce.icon.svg",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#121212"
+          "backgroundColor": "#4884DF"
         }
       ],
       [
