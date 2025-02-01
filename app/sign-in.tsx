@@ -11,7 +11,6 @@ import {login, google_login} from "@/api"
 import {storeData} from "@/util/helper"
 import { AxiosResponse, AxiosError } from 'axios';
 import {router} from "expo-router";
-//import { ApiResponse} from "@/util/types";
 import { User } from "@/models/User";
 import {
     GoogleSignin,
@@ -96,6 +95,7 @@ const Signin = () => {
                 setLoading(false);
                 const user: User = res.data?.results;
                 await storeData("user_token", user?.token);
+                await storeData("refresh_token", user?.refresh_token);
                 // Dispatch the user and set authentication status
                 dispatch(setUser(user));
                 dispatch(setisAuthenticated(true));
@@ -136,6 +136,7 @@ const Signin = () => {
                     const user: User = res.data?.results;
                     console.log("User from Google Login:", user);
                     await storeData("user_token", user?.token);
+                    await storeData("refresh_token", user?.refresh_token);
                     // Dispatch the user and set authentication status
                     dispatch(setUser(user));
                     dispatch(setisAuthenticated(true));

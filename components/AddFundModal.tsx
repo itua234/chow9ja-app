@@ -33,8 +33,8 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
     return (
         <>
         <StatusBar style="dark" />
+        <View className="flex-1 mt-[30px]" style={{position: "relative"}}>
         <Button title="back" onPress={onClose}></Button>
-        <View className="flex-1" style={{position: "relative"}}>
             <WebView
                 source={{
                     uri: url,
@@ -50,17 +50,7 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
                 sharedCookiesEnabled={true}
                 userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
                 mixedContentMode="always"
-                onLoad={() => console.log("WebView loaded")}
-                onLoadEnd={() => console.log("WebView load completed")}
                 onLoadProgress={onLoadProgress}
-                onError={(syntheticEvent) => {
-                    const { nativeEvent } = syntheticEvent;
-                    console.warn('WebView error: ', nativeEvent);
-                }}
-                onHttpError={(syntheticEvent) => {
-                    const { nativeEvent } = syntheticEvent;
-                    console.warn('WebView received error status code: ', nativeEvent.statusCode);
-                }}
                 className="flex-1"
                 onNavigationStateChange={onNavigationStateChange}
                 onShouldStartLoadWithRequest={(request) => {
@@ -69,7 +59,6 @@ const AddFundModal: React.FC<AddFundModalProps>  = ({
                         axios.get(request.url)
                         .then((response) => {
                             console.log('Received JSON:', response.data);
-                            // Handle the response data as needed
                             // onClose(); // Close WebView modal if required
                         })
                         .catch((error) => {

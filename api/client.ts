@@ -21,8 +21,8 @@ const appToken = process.env.EXPO_PUBLIC_APP_TOKEN;
 const client = axios.create({
     //baseURL: "http://192.168.43.253:8080/api/v1/",
     //baseURL: "http://172.20.10.4:8080/api/v1/",
-    baseURL: "http://192.168.217.166:8080/api/v1/",
-    //baseURL: Platform.OS === 'ios' ? 'http://127.0.0.1:8080/api/v1/' : 'http://10.0.2.2:8080/api/v1/',
+    //baseURL: "http://192.168.217.166:8080/api/v1/",
+    baseURL: Platform.OS === 'ios' ? 'http://127.0.0.1:8080/api/v1/' : 'http://10.0.2.2:8080/api/v1/',
     timeout: 10000, // 10 seconds
     headers: {
         Accept: 'application/json',
@@ -43,9 +43,15 @@ const refresh_token = async (error: any) => {
         const refreshToken = await AsyncStorage.getItem('refresh_token');
         if (refreshToken) {
             try {
-                const { data } = await client.post('/auth/refresh-token', { refreshToken });
-                await AsyncStorage.setItem('user_token', data.token);
-                originalRequest.headers.Authorization = `Bearer ${data.token}`;
+                const { data } = await client.post(
+                    '/auth/refresh-token', 
+                    { refresh_token: refreshToken },
+                    { useAppToken: true }as CustomAxiosRequestConfig
+                );
+                await AsyncStorage.setItem('user_token', data.results.token);
+                await AsyncStorage.setItem('refresh_token', data.results.refresh_token);
+                originalRequest.headers.Authorization = `Bearer ${data.results.token}`;
+                console.log("token has been refreshed");
                 return client(originalRequest);
             } catch (refreshError) {
                 console.error('Token refresh failed:', refreshError);
@@ -84,13 +90,14 @@ client.interceptors.request.use(
 client.interceptors.response.use(
     //log.info(`Response: ${response.status} ${response.config.url}`);
     (response: AxiosResponse) => response,
-    (error: AxiosError) => {
+    async (error: AxiosError) => {
         //await refresh_token(error);
         if (error.response) {
             // Handle specific HTTP error codes
             switch (error.response.status) {
                 case 401:
                     console.log('Unauthorized: Redirect to login');
+                    await refresh_token(error);
                     break;
                 case 404:
                     console.log('Resource not found');

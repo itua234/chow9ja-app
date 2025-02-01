@@ -11,4 +11,5 @@ export interface User {
     notificationsEnabled: boolean;
     email_verified_at: string;
     token: string;
+    refresh_token: string | null;
 }

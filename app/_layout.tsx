@@ -73,18 +73,29 @@ function RootLayout() {
       if(token){
         const response = await get_user();
         const user: User = response.data.results;
-        // dispatch(setUser(user));
-        // dispatch(setisAuthenticated(true));
-        // dispatch(setAppIsReady(true));
-        // dispatch(setLoading(false));
+        dispatch(setUser(user));
+        dispatch(setisAuthenticated(true));
+        dispatch(setAppIsReady(true));
+        dispatch(setLoading(false));
       }else{
-        router.push("/sign-in");
+        //router.push("/sign-in");
+        dispatch(setAppIsReady(true));
       }
     }catch (error) {
       console.error('Error checking auth status:', error);
       dispatch(setLoading(false));
     }
   };
+
+  useEffect(() => {
+    if (appIsReady) {
+      if (isAuthenticated) {
+        router.replace("/(tabs)"); // Navigate only after app is ready
+      } else {
+        router.replace("/sign-in");
+      }
+    }
+  }, [appIsReady, isAuthenticated]); // Run when appIsReady or isAuthenticated changes
 
   if (!fontsLoaded || !appIsReady) {
     return (
