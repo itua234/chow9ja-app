@@ -1,18 +1,24 @@
 import React, { useEffect } from 'react';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { 
+  DarkTheme, 
+  DefaultTheme, 
+  ThemeProvider 
+} from '@react-navigation/native';
+import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View } from 'react-native';
-import { Provider, useDispatch, useSelector } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View } from 'react-native';
 import { useFonts } from 'expo-font';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SvgXml} from "react-native-svg";
 import {groundforce_logo} from '@/util/svg';
 
-import { store } from '@/reducers/store';
-import { RootState } from '@/reducers/store';
-import { setUser, setLoading } from '@/reducers/auth/authSlice';
+import { store, RootState, AppDispatch } from '@/reducers/store';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { setUser, setLoading, setAppIsReady, setisAuthenticated } from '@/reducers/auth/authSlice';
+import {get_user} from "@/api"
+import { User } from "@/models/User";
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import 'react-native-reanimated';
@@ -26,16 +32,20 @@ export default function Layout() {
 
   return (
     <Provider store={store}>
-      {/* <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}> */}
-        <RootLayout />
-      {/* </ThemeProvider> */}
+      <StatusBar style="dark" />
+      <RootLayout />
     </Provider>
   );
 }
 
 function RootLayout() {
-  const dispatch = useDispatch();
-  const { isLoading } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    appIsReady
+  } = useSelector((state: RootState) => state.auth);
 
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -59,29 +69,34 @@ function RootLayout() {
 
   const checkAuthStatus = async () => {
     try {
-      const userData = await AsyncStorage.getItem('user');
-      if (userData) {
-        const user = JSON.parse(userData);
-        dispatch(setUser(user));
-      } else {
-        dispatch(setLoading(false));
+      const token = await AsyncStorage.getItem('user_token');
+      if(token){
+        const response = await get_user();
+        const user: User = response.data.results;
+        // dispatch(setUser(user));
+        // dispatch(setisAuthenticated(true));
+        // dispatch(setAppIsReady(true));
+        // dispatch(setLoading(false));
+      }else{
+        router.push("/sign-in");
       }
-    } catch (error) {
+    }catch (error) {
       console.error('Error checking auth status:', error);
       dispatch(setLoading(false));
     }
   };
 
-  if (!fontsLoaded || isLoading) {
+  if (!fontsLoaded || !appIsReady) {
     return (
-      // <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      //   <ActivityIndicator size="large" color="#61dafb" />
-      // </View>
-      <View className="flex-1 items-center justify-center bg-[#4884DF]">
+      <View className="
+      flex-1 
+      items-center 
+      justify-center 
+      bg-[#4884DF]">
         <SvgXml
-            xml={groundforce_logo}
-            width="200"
-            height="30"
+          xml={groundforce_logo}
+          width="200"
+          height="30"
         />
       </View>
     );
