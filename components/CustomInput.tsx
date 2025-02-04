@@ -86,11 +86,11 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
     return (
         <View className="">
-            {label && (
+            {label ? (
                 <Text className="text-[#1A1C1E] mb-2 mt-[7.5px] font-primary">
                     {label}
                 </Text>
-            )}
+            ): <View className="mb-2 mt-[7.5px]"/>}
             <Animated.View 
             className={`
                 flex-row 

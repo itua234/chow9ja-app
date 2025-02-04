@@ -99,12 +99,13 @@ const DashboardHeader = () => {
                 <View className="w-[40px] h-[40px] rounded-full bg-white items-center justify-center ml-[10px]">
                     {/* <Text className='font-primary text-[14px]'>{notificationCount}</Text> */}
                     <Pressable onPress={() => {
-                        router.push({
-                            pathname: '/notifications',
-                            params: {
-                                notifications: JSON.stringify(notifications),
-                            }
-                        });
+                        // router.push({
+                        //     pathname: '/notifications',
+                        //     params: {
+                        //         notifications: JSON.stringify(notifications),
+                        //     }
+                        // });
+                        router.push("/splash");
                     }}>
                         <SvgXml xml={notificationCount > 0 ? active_bell : bell} width="30" height="30" />
                     </Pressable>

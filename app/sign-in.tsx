@@ -232,9 +232,8 @@ const Signin = () => {
             <StatusBar
                 animated={true}
                 backgroundColor="#fff"
-                barStyle="dark-content" // Ensures black text for iOS
-                networkActivityIndicatorVisible={true}
-                hidden={false}
+                barStyle="dark-content"
+                translucent={false}
             />
             <KeyboardAvoidingView 
                 behavior={Platform.OS === "ios" ? "padding" : "height"}

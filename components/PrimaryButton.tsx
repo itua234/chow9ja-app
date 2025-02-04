@@ -6,6 +6,7 @@ interface PrimaryButtonProps {
     action: () => void;
     disabled?: boolean;
     isLoading?: boolean;
+    style?: string
 }
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({
     title,

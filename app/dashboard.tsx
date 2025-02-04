@@ -25,8 +25,11 @@ import InvestmentCard from "@/components/InvestmentCard"
 import { router } from 'expo-router';
 import { AxiosError, AxiosResponse } from 'axios';
 
-import { useSelector } from 'react-redux';
+import { useSelector,  useDispatch } from 'react-redux';
 import { RootState } from '@/reducers/store';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setUser, setisAuthenticated } from '@/reducers/auth/authSlice';
 
 
 export const DashboardQuickAction = ({ 
@@ -161,6 +164,7 @@ interface ErrorsType {
 const Dashboard = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+    const dispatch = useDispatch();
 
     const [isBalanceVisible, setIsBalanceVisible] = useState<boolean>(true);
     const toggleBalanceVisibility = () => setIsBalanceVisible(!isBalanceVisible);
@@ -313,6 +317,21 @@ const Dashboard = () => {
     const seeAllTransactions = () => {
         alert("see all");
     }
+    const logout = async () => {
+        try {
+            // Clear tokens from AsyncStorage
+            await AsyncStorage.removeItem('user_token');
+            await AsyncStorage.removeItem('refresh_token');
+            // Dispatch actions to reset user state
+            dispatch(setUser(null));
+            dispatch(setisAuthenticated(false));
+            // Navigate to login screen
+            console.log("logged out");
+            router.push('/sign-in');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
 
     if (!user) return null;
 
@@ -345,6 +364,10 @@ const Dashboard = () => {
                             onSeeAll={seeAllTransactions}
                             title="Recent Transaction"
                         />   
+
+                        <Pressable onPress={logout}>
+                            <Text>Log out</Text>
+                        </Pressable>
 
                         <RBSheet
                             ref={refRBSheet}

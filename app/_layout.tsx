@@ -77,13 +77,15 @@ function RootLayout() {
         dispatch(setisAuthenticated(true));
         dispatch(setAppIsReady(true));
         dispatch(setLoading(false));
-      }else{
         //router.push("/sign-in");
+      }else{
         dispatch(setAppIsReady(true));
+        //dispatch(setLoading(false));
       }
     }catch (error) {
       console.error('Error checking auth status:', error);
       dispatch(setLoading(false));
+      dispatch(setAppIsReady(true));
     }
   };
 
@@ -92,7 +94,7 @@ function RootLayout() {
       if (isAuthenticated) {
         router.replace("/(tabs)"); // Navigate only after app is ready
       } else {
-        router.replace("/sign-in");
+        //router.replace("/sign-in");
       }
     }
   }, [appIsReady, isAuthenticated]); // Run when appIsReady or isAuthenticated changes
@@ -115,6 +117,7 @@ function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" options={{ title: 'Splashscreen' }} />
       <Stack.Screen name="(tabs)" options={{ title: 'Tabs' }} />
       <Stack.Screen name="sign-in" options={{ title: 'Sign In' }} />
       <Stack.Screen name="sign-up" options={{ title: 'Sign Up' }} />
