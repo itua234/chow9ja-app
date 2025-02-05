@@ -70,6 +70,8 @@ function RootLayout() {
   const checkAuthStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('user_token');
+      const isFirstTime = await AsyncStorage.getItem('isFirstTime');
+
       if(token){
         const response = await get_user();
         const user: User = response.data.results;
@@ -77,15 +79,17 @@ function RootLayout() {
         dispatch(setisAuthenticated(true));
         dispatch(setAppIsReady(true));
         dispatch(setLoading(false));
-        //router.push("/sign-in");
       }else{
-        dispatch(setAppIsReady(true));
-        //dispatch(setLoading(false));
+        if (isFirstTime === null) {
+          await AsyncStorage.setItem('isFirstTime', 'true');
+        }
       }
     }catch (error) {
       console.error('Error checking auth status:', error);
-      dispatch(setLoading(false));
+    }finally{
       dispatch(setAppIsReady(true));
+      dispatch(setisAuthenticated(false));
+      dispatch(setLoading(false));
     }
   };
 
@@ -94,7 +98,14 @@ function RootLayout() {
       if (isAuthenticated) {
         router.replace("/(tabs)"); // Navigate only after app is ready
       } else {
-        //router.replace("/sign-in");
+        const checkFirstTimeUser = async () => {
+          const isFirstTime = await AsyncStorage.getItem('isFirstTime');
+          console.log("user status", isFirstTime);
+          if (isFirstTime === 'false') {
+            router.replace("/sign-in");
+          } 
+        };
+        checkFirstTimeUser();
       }
     }
   }, [appIsReady, isAuthenticated]); // Run when appIsReady or isAuthenticated changes

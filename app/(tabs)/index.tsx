@@ -337,13 +337,7 @@ const Dashboard = () => {
     if (!user) return null;
 
     return (
-        <ScreenLayout 
-            className="pt-[10px]" 
-            contentContainerStyle={{  }}
-            scrollViewProps={{ 
-                //refreshControl: <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> 
-            }}
-        >
+        <ScreenLayout className="pt-[10px]">
             <View className="flex-1">
                 {!url ? (
                     <View  className="px-[17.5] flex-1">
