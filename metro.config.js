@@ -7,7 +7,7 @@ const config = getDefaultConfig(__dirname);
 
 module.exports = withNativeWind(config, { 
     input: "./global.css" ,
-    server: {
-        timeoutInterval: 120000
-    }
+    // server: {
+    //     timeoutInterval: 120000
+    // }
 });

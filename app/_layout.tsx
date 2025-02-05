@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   DarkTheme, 
   DefaultTheme, 
@@ -46,6 +46,7 @@ function RootLayout() {
     isLoading,
     appIsReady
   } = useSelector((state: RootState) => state.auth);
+  const [isFirstTime, setIsFirstTime] = useState<string | null>(null);
 
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -58,9 +59,22 @@ function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
+    (async () => {
+      try {
+        const firstTimeValue = await AsyncStorage.getItem('isFirstTime');
+        if (firstTimeValue === null) {
+          await AsyncStorage.setItem('isFirstTime', 'true'); // Set default value if not present
+          setIsFirstTime('true');
+        } else {
+          setIsFirstTime('false');
+        }
+      } catch (error) {
+        console.log('Error initializing app:', error);
+      } finally {
+        // Hide splash screen once everything is ready
+        SplashScreen.hideAsync();
+      }
+    })();
   }, [fontsLoaded]);
 
   useEffect(() => {
@@ -70,25 +84,18 @@ function RootLayout() {
   const checkAuthStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('user_token');
-      const isFirstTime = await AsyncStorage.getItem('isFirstTime');
-
       if(token){
         const response = await get_user();
         const user: User = response.data.results;
         dispatch(setUser(user));
-        dispatch(setisAuthenticated(true));
         dispatch(setAppIsReady(true));
+        dispatch(setisAuthenticated(true));
         dispatch(setLoading(false));
-      }else{
-        if (isFirstTime === null) {
-          await AsyncStorage.setItem('isFirstTime', 'true');
-        }
       }
     }catch (error) {
-      console.error('Error checking auth status:', error);
+      console.log('Error checking auth status:', error);
     }finally{
       dispatch(setAppIsReady(true));
-      dispatch(setisAuthenticated(false));
       dispatch(setLoading(false));
     }
   };
@@ -98,19 +105,14 @@ function RootLayout() {
       if (isAuthenticated) {
         router.replace("/(tabs)"); // Navigate only after app is ready
       } else {
-        const checkFirstTimeUser = async () => {
-          const isFirstTime = await AsyncStorage.getItem('isFirstTime');
-          console.log("user status", isFirstTime);
           if (isFirstTime === 'false') {
             router.replace("/sign-in");
-          } 
-        };
-        checkFirstTimeUser();
+          }
       }
     }
   }, [appIsReady, isAuthenticated]); // Run when appIsReady or isAuthenticated changes
 
-  if (!fontsLoaded || !appIsReady) {
+  if (!fontsLoaded || !appIsReady || isFirstTime === null) {
     return (
       <View className="
       flex-1 
