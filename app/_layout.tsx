@@ -117,7 +117,7 @@ function RootLayout() {
       <View className="
       flex-1 
       items-center 
-      justify-center 
+      justify-center
       bg-[#4884DF]">
         <SvgXml
           xml={groundforce_logo}
