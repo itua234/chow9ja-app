@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { 
   DarkTheme, 
   DefaultTheme, 
@@ -59,29 +59,25 @@ function RootLayout() {
   });
 
   useEffect(() => {
-    (async () => {
-      try {
-        const firstTimeValue = await AsyncStorage.getItem('isFirstTime');
-        if (firstTimeValue === null) {
-          await AsyncStorage.setItem('isFirstTime', 'true'); // Set default value if not present
-          setIsFirstTime('true');
-        } else {
-          setIsFirstTime('false');
-        }
-      } catch (error) {
-        console.log('Error initializing app:', error);
-      } finally {
-        // Hide splash screen once everything is ready
-        SplashScreen.hideAsync();
-      }
-    })();
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    (async () => {
+      const firstTimeValue = await AsyncStorage.getItem('isFirstTime');
+      const newValue = firstTimeValue === null ? "true" : "false";
+      setIsFirstTime(newValue);
+    })();
+  }, []);
 
   useEffect(() => {
     checkAuthStatus();
   }, []);
 
   const checkAuthStatus = async () => {
+    //await AsyncStorage.clear();
     try {
       const token = await AsyncStorage.getItem('user_token');
       if(token){
@@ -101,16 +97,15 @@ function RootLayout() {
   };
 
   useEffect(() => {
-    if (appIsReady) {
+    if (appIsReady && fontsLoaded && isFirstTime !== null) {
       if (isAuthenticated) {
         router.replace("/(tabs)"); // Navigate only after app is ready
-      } else {
-          if (isFirstTime === 'false') {
-            router.replace("/sign-in");
-          }
+      } else if (isFirstTime === 'false') {
+        console.log("first state", isFirstTime);
+        router.replace("/sign-in");
       }
     }
-  }, [appIsReady, isAuthenticated]); // Run when appIsReady or isAuthenticated changes
+  }, [appIsReady, isAuthenticated, isFirstTime]); // Run when appIsReady or isAuthenticated changes
 
   if (!fontsLoaded || !appIsReady || isFirstTime === null) {
     return (
