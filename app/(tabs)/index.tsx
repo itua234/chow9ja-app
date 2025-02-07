@@ -66,6 +66,40 @@ export const DashboardQuickAction = ({
     );
 };
 
+export const BillsCard = ({ 
+    onSendPress, 
+    onAddFundsPress, 
+    onRequestPress, 
+    onMorePress 
+}: QuickActionProps) => {
+    return (
+        <View className="mb-[20px] bg-white px-[25px] py-[15px] rounded-[20px]">
+            <View className="flex-row justify-between">
+                <QuickActions 
+                    title="Send" 
+                    icon={arrow_up} 
+                    onPress={onSendPress} 
+                />
+                <QuickActions 
+                    title="Add funds" 
+                    icon={plus} 
+                    onPress={onAddFundsPress} 
+                />
+                <QuickActions 
+                    title="Request" 
+                    icon={arrow_down} 
+                    onPress={onRequestPress} 
+                />
+                <QuickActions 
+                    title="More" 
+                    icon={ellipsis} 
+                    onPress={onMorePress} 
+                />
+            </View>
+        </View>
+    );
+};
+
 export const DashboardActivity = ({ 
     transactions, 
     onSeeAll,

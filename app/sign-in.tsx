@@ -100,7 +100,7 @@ const Signin = () => {
                 // Dispatch the user and set authentication status
                 dispatch(setUser(user));
                 dispatch(setisAuthenticated(true));
-                router.push('/dashboard');
+                router.replace('/dashboard');
             }).catch((error: AxiosError<any>) => {
                 dispatch(clearErrors());
                 handleMessage('');
@@ -135,14 +135,13 @@ const Signin = () => {
                 google_login(payload)
                 .then(async (res: AxiosResponse<LoginResponse>) => {
                     const user: User = res.data?.results;
-                    //console.log("User from Google Login:", user);
                     await storeData("user_token", user?.token);
                     await storeData("refresh_token", user?.refresh_token);
                     await storeData('isFirstTime', 'false');
                     // Dispatch the user and set authentication status
                     dispatch(setUser(user));
                     dispatch(setisAuthenticated(true));
-                    router.push('/(tabs)');
+                    router.replace('/dashboard');
                 }).catch((error: AxiosError<any>) => {
                     handleMessage('');
                     if (error.response) {

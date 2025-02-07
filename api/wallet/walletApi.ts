@@ -21,3 +21,17 @@ export const fetch_account = (account: string, code: string | number): Promise<a
 export const fund_wallet = (amount: string | number): Promise<any> => {
     return client.post("fund-wallet", { amount });
 }
+
+export const fetch_biller_info = (category: string): Promise<any> => {
+    return client.get(
+        `billers/${category}`, 
+        { useAppToken: true } as CustomAxiosRequestConfig
+    );
+}
+
+export const fetch_bill_info = (biller_code: string): Promise<any> => {
+    return client.get(
+        `bill/${biller_code}`, 
+        { useAppToken: true } as CustomAxiosRequestConfig
+    );
+}

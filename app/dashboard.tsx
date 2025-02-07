@@ -31,7 +31,6 @@ import { RootState } from '@/reducers/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUser, setisAuthenticated } from '@/reducers/auth/authSlice';
 
-
 export const DashboardQuickAction = ({ 
     onSendPress, 
     onAddFundsPress, 
@@ -42,22 +41,22 @@ export const DashboardQuickAction = ({
         <View className="mb-[20px] bg-white px-[25px] py-[15px] rounded-[20px]">
             <View className="flex-row justify-between">
                 <QuickActions 
-                    title="Send" 
+                    title="Airtime" 
                     icon={arrow_up} 
                     onPress={onSendPress} 
                 />
                 <QuickActions 
-                    title="Add funds" 
+                    title="Data" 
                     icon={plus} 
                     onPress={onAddFundsPress} 
                 />
                 <QuickActions 
-                    title="Request" 
+                    title="Electricity" 
                     icon={arrow_down} 
                     onPress={onRequestPress} 
                 />
                 <QuickActions 
-                    title="More" 
+                    title="Cable TV" 
                     icon={ellipsis} 
                     onPress={onMorePress} 
                 />
@@ -310,9 +309,10 @@ const Dashboard = () => {
     };
     const handleMore = async (message="Compliments of the season!!!") => {
         // Show more options or open a bottom sheet
-        console.log('More options clicked');
-        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
-        await Linking.openURL(url);
+        // console.log('More options clicked');
+        // const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
+        // await Linking.openURL(url);
+        router.push("/cable");
     };
     const seeAllTransactions = () => {
         alert("see all");

@@ -47,6 +47,7 @@ function RootLayout() {
     appIsReady
   } = useSelector((state: RootState) => state.auth);
   const [isFirstTime, setIsFirstTime] = useState<string | null>(null);
+  const [showSplash, setShowSplash] = useState(true);
 
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -64,15 +65,15 @@ function RootLayout() {
     }
   }, [fontsLoaded]);
 
-  useEffect(() => {
-    (async () => {
-      const firstTimeValue = await AsyncStorage.getItem('isFirstTime');
-      const newValue = firstTimeValue === null ? "true" : "false";
-      setIsFirstTime(newValue);
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const firstTimeValue = await AsyncStorage.getItem('isFirstTime');
+  //     const newValue = firstTimeValue === null ? "true" : "false";
+  //     setIsFirstTime(newValue);
+  //   })();
+  // }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     checkAuthStatus();
   }, []);
 
@@ -92,22 +93,26 @@ function RootLayout() {
       console.log('Error checking auth status:', error);
     }finally{
       dispatch(setAppIsReady(true));
+      dispatch(setisAuthenticated(false));
       dispatch(setLoading(false));
+      // Add a slight delay before hiding splash
+      setTimeout(() => {
+        setShowSplash(false);
+      }, 2000); // Adjust time as needed
     }
   };
 
   useEffect(() => {
-    if (appIsReady && fontsLoaded && isFirstTime !== null) {
+    if (appIsReady && fontsLoaded) {
       if (isAuthenticated) {
-        router.replace("/(tabs)"); // Navigate only after app is ready
+        router.replace("/dashboard"); // Navigate only after app is ready
       } else if (isFirstTime === 'false') {
-        console.log("first state", isFirstTime);
         router.replace("/sign-in");
       }
     }
-  }, [appIsReady, isAuthenticated, isFirstTime]); // Run when appIsReady or isAuthenticated changes
+  }, [appIsReady, isAuthenticated]); // Run when appIsReady or isAuthenticated changes
 
-  if (!fontsLoaded || !appIsReady || isFirstTime === null) {
+  if (showSplash || !fontsLoaded || !appIsReady) {
     return (
       <View className="
       flex-1 
@@ -126,7 +131,7 @@ function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ title: 'Splashscreen' }} />
-      <Stack.Screen name="(tabs)" options={{ title: 'Tabs' }} />
+      {/* <Stack.Screen name="(tabs)" options={{ title: 'Tabs' }} /> */}
       <Stack.Screen name="sign-in" options={{ title: 'Sign In' }} />
       <Stack.Screen name="sign-up" options={{ title: 'Sign Up' }} />
       <Stack.Screen name="verify-email" options={{ title: 'Verify Email' }} />
@@ -136,6 +141,8 @@ function RootLayout() {
       <Stack.Screen name="change-password" options={{ title: 'Change Password' }} />
       <Stack.Screen name="send" options={{ title: 'Send' }} />
       <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
+
+      <Stack.Screen name="cable" options={{ title: 'Cable' }} />
     </Stack>
   );
 }
