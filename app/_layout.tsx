@@ -18,6 +18,7 @@ import { setAppIsReady } from '@/reducers/auth/authSlice';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import 'react-native-reanimated';
 import '../global.css';
+import useLocation from '@/hooks/useLocation';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -34,6 +35,8 @@ export default function Layout() {
 }
 
 function RootLayout() {
+  const {latitude, longitude, msg} = useLocation();
+  
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     "Campton-Black": require('../assets/fonts/campton/CamptonBlack.otf'),

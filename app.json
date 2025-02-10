@@ -48,7 +48,13 @@
           "iosUrlScheme": "com.googleusercontent.apps.255095568241-fbu560u0doll0a1h6arq0avblqiahr1a"
         }
       ],
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Chow9ja to use your location."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
