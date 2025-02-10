@@ -9,11 +9,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { store, RootState, AppDispatch } from '@/reducers/store';
-import { Provider, useDispatch, useSelector } from 'react-redux';
-import { setAppIsReady } from '@/reducers/auth/authSlice';
+import { store, AppDispatch } from '@/reducers/store';
+import { Provider, useDispatch } from 'react-redux';
+import { setLatitude, setLongitude } from '@/reducers/location/locationSlice';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import 'react-native-reanimated';
@@ -35,8 +33,16 @@ export default function Layout() {
 }
 
 function RootLayout() {
+  const dispatch = useDispatch<AppDispatch>();
   const {latitude, longitude, msg} = useLocation();
-  
+  //console.log("latitude", latitude, longitude, msg);
+  useEffect(() => {
+    if (latitude && longitude) {
+      dispatch(setLatitude(latitude));
+      dispatch(setLongitude(longitude));
+    }
+  }, [latitude, longitude, dispatch]);
+
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     "Campton-Black": require('../assets/fonts/campton/CamptonBlack.otf'),
