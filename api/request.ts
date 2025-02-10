@@ -15,22 +15,11 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     useAppToken?: boolean;
     _retry?: boolean;
     useBaseURL?: boolean;
+    token?: string;
 }
-
 // Also extend the AxiosError type to include our custom config
 interface CustomAxiosError extends AxiosError {
     config: CustomAxiosRequestConfig;
-}
-
-interface ApiClientConfig {
-    baseURL?: string;
-    timeout?: number;
-    useAppToken?: boolean;
-}
-
-interface ApiClientState {
-    loading: boolean;
-    error: CustomAxiosError | null;
 }
 
 interface RequestConfig {
@@ -41,9 +30,11 @@ interface RequestConfig {
     useBaseURL?: boolean;
     useAppToken?: boolean;
     headers?: Record<string, string>;
+    token?: string; // Optional token for this request
 }
 
 interface UseApiClientReturn {
+    //     request: AxiosInstance;
     request: <T = any>(config: RequestConfig) => Promise<T>;
     loading: boolean;
     error: CustomAxiosError | null;
@@ -51,19 +42,20 @@ interface UseApiClientReturn {
     cancelRequests: (message?: string) => void;
 }
 
-// interface UseApiClientReturn {
-//     client: AxiosInstance;
-//     loading: boolean;
-//     error: AxiosError | null;
-//     resetError: () => void;
-//     cancelRequests: (message?: string) => void;
-// }
-
 interface AuthTokens {
     userToken: string | null;
     refreshToken: string | null;
 }
 
+interface ApiClientConfig {
+    baseURL?: string;
+    timeout?: number;
+    useAppToken?: boolean;
+}
+interface ApiClientState {
+    loading: boolean;
+    error: CustomAxiosError | null;
+}
 const DEFAULT_CONFIG: ApiClientConfig = {
     baseURL: Platform.OS === 'ios' 
         ? 'http://127.0.0.1:8080/api/v1/' 
@@ -108,9 +100,14 @@ export const useApi = (config: ApiClientConfig = DEFAULT_CONFIG): UseApiClientRe
 
     const refreshAccessToken = useCallback(async (refreshToken: string) => {
         try {
-            const { data } = await client.post('/auth/refresh-token', { refreshToken });
-            await AsyncStorage.setItem('user_token', data.token);
-            return data.token;
+            const { data } = await client.post(
+                '/auth/refresh-token', 
+                { refresh_token: refreshToken },
+                { useAppToken: true }as CustomAxiosRequestConfig
+            );
+            await AsyncStorage.setItem('user_token', data.results.token);
+            await AsyncStorage.setItem('refresh_token', data.results.refresh_token);
+            return data.results.token;
         } catch (error) {
             throw new Error('Token refresh failed');
         }
@@ -120,29 +117,28 @@ export const useApi = (config: ApiClientConfig = DEFAULT_CONFIG): UseApiClientRe
     useEffect(() => {
         const requestInterceptor = client.interceptors.request.use(
             async (config: CustomAxiosRequestConfig) => {
-                setState(prev => ({ ...prev, loading: true }));
-
+                //setState(prev => ({ ...prev, loading: true }));
                 try {
-                    if (config.useAppToken && process.env.EXPO_PUBLIC_APP_TOKEN) {
+                    if (config.token) {
+                        config.headers!.Authorization = `Bearer ${config.token}`;
+                    }else if (config.useAppToken && process.env.EXPO_PUBLIC_APP_TOKEN) {
                         config.headers!.Authorization = `Bearer ${process.env.EXPO_PUBLIC_APP_TOKEN}`;
-                    } else {
+                    }else if (!config.token && !config.useAppToken) {
                         const { userToken } = await getStoredTokens();
                         if (userToken) {
                             config.headers!.Authorization = `Bearer ${userToken}`;
                         }
                     }
-                } catch (error) {
+                }catch (error) {
                     console.error('Request interceptor error:', error);
                 }
-
                 return config;
             },
             error => {
-                setState(prev => ({ ...prev, loading: false, error }));
+                //setState(prev => ({ ...prev, loading: false, error }));
                 return Promise.reject(error);
             }
         );
-
         return () => {
             client.interceptors.request.eject(requestInterceptor);
         };
@@ -152,26 +148,53 @@ export const useApi = (config: ApiClientConfig = DEFAULT_CONFIG): UseApiClientRe
     useEffect(() => {
         const responseInterceptor = client.interceptors.response.use(
             (response: AxiosResponse) => {
-                setState(prev => ({ ...prev, loading: false }));
+                //setState(prev => ({ ...prev, loading: false }));
                 return response;
             },
             async (error: CustomAxiosError) => {
-                setState(prev => ({ ...prev, loading: false, error }));
-                // Handle 401 and token refresh
-                if (error.response?.status === 401) {
-                    try {
-                        const { refreshToken } = await getStoredTokens();
-                        if (refreshToken && error.config && !error.config._retry) {
-                            error.config._retry = true;
-                            const newToken = await refreshAccessToken(refreshToken);
-                            error.config.headers.Authorization = `Bearer ${newToken}`;
-                            return client(error.config);
-                        }
-                    } catch (refreshError) {
-                        // Handle failed refresh (e.g., logout user)
-                        await AsyncStorage.multiRemove(['user_token', 'refresh_token']);
-                        // You might want to trigger a navigation to login here
+                //setState(prev => ({ ...prev, loading: false, error }));
+                if (error.response) {
+                    // Handle specific HTTP error codes
+                    switch (error.response.status) {
+                        case 401:
+                            console.log('Unauthorized: Redirect to login');
+                            try {
+                                const { refreshToken } = await getStoredTokens();
+                                if (refreshToken && error.config && !error.config._retry) {
+                                    error.config._retry = true;
+                                    const newToken = await refreshAccessToken(refreshToken);
+                                    error.config.headers.Authorization = `Bearer ${newToken}`;
+                                    return client(error.config);
+                                }
+                            }catch (refreshError) {
+                                console.log('Token refresh failed:', refreshError);
+                                // Handle failed refresh (e.g., logout user)
+                                await AsyncStorage.multiRemove(['user_token', 'refresh_token']);
+                                // You might want to trigger a navigation to login here
+                            }
+                            break;
+                        case 404:
+                            console.log('Resource not found');
+                            break;
+                        case 500:
+                            console.log('Server error');
+                            break;
+                        case 422:
+                            console.log('Validation error:', error.response.data);
+                            break;
+                        default:
+                            console.log('An error occurred:', {
+                                message: error.message,
+                                status: error.response.status,
+                                data: error.response.data,
+                            });
                     }
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.log('No response received:', error.request);
+                } else {
+                    // Something happened in setting up the request
+                    console.log('Request setup error:', error.message);
                 }
                 return Promise.reject(error);
             }
@@ -189,7 +212,8 @@ export const useApi = (config: ApiClientConfig = DEFAULT_CONFIG): UseApiClientRe
         params,
         useBaseURL = false,
         useAppToken = false,
-        headers = {}
+        headers = {},
+        token
     }: RequestConfig): Promise<T> => {
         try {
             const response = await client.request<T>({
@@ -199,10 +223,11 @@ export const useApi = (config: ApiClientConfig = DEFAULT_CONFIG): UseApiClientRe
                 params,
                 baseURL: useBaseURL ? DEFAULT_CONFIG.baseURL : config.baseURL,
                 headers,
-                useAppToken
+                useAppToken,
+                token
             } as RequestConfig);
             return response.data;
-        } catch (error) {
+        }catch (error) {
             throw error;
         }
     }, [client, config.baseURL]);
@@ -234,3 +259,24 @@ export const useApi = (config: ApiClientConfig = DEFAULT_CONFIG): UseApiClientRe
 //     useBaseURL: true // This will now work correctly
 //   });
 // };
+
+// Use default userToken
+// await request({
+//     method: 'GET',
+//     url: '/some-endpoint'
+// });
+
+// // Use custom token
+// await request({
+//     method: 'GET',
+//     url: '/some-endpoint',
+//     token: 'your-custom-token'
+// });
+
+// // Use app token
+// await request({
+//     method: 'GET',
+//     url: '/some-endpoint',
+//     useAppToken: true
+// });
+// This gives you the flexibility to use different tokens for different requests while maintaining the default behavior when no token is specified. CopyRetryClaude does not have the ability to run the code it generates yet.Claude can make mistakes. Please double-check responses.
