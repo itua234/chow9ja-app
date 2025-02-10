@@ -47,7 +47,6 @@ function RootLayout() {
     appIsReady
   } = useSelector((state: RootState) => state.auth);
   const [isFirstTime, setIsFirstTime] = useState<string | null>(null);
-  const [showSplash, setShowSplash] = useState(true);
 
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -59,10 +58,14 @@ function RootLayout() {
     "Campton-ExtraBold": require('../assets/fonts/campton/CamptonExtraBold.otf')
   });
 
-  useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
+  useLayoutEffect(() => {
+    const initializeApp = async () => {
+      if (fontsLoaded) {
+        await checkAuthStatus(); // Wait for auth status check
+        await SplashScreen.hideAsync(); // Hide splash screen after everything is ready
+      }
+    };
+    initializeApp();
   }, [fontsLoaded]);
 
   // useEffect(() => {
@@ -72,10 +75,6 @@ function RootLayout() {
   //     setIsFirstTime(newValue);
   //   })();
   // }, []);
-
-  useLayoutEffect(() => {
-    checkAuthStatus();
-  }, []);
 
   const checkAuthStatus = async () => {
     //await AsyncStorage.clear();
@@ -95,24 +94,20 @@ function RootLayout() {
       dispatch(setAppIsReady(true));
       dispatch(setisAuthenticated(false));
       dispatch(setLoading(false));
-      // Add a slight delay before hiding splash
-      setTimeout(() => {
-        setShowSplash(false);
-      }, 2000); // Adjust time as needed
     }
   };
 
-  useEffect(() => {
-    if (appIsReady && fontsLoaded) {
-      if (isAuthenticated) {
-        router.replace("/dashboard"); // Navigate only after app is ready
-      } else if (isFirstTime === 'false') {
-        router.replace("/sign-in");
-      }
-    }
-  }, [appIsReady, isAuthenticated]); // Run when appIsReady or isAuthenticated changes
+  // useEffect(() => {
+  //   if (appIsReady && fontsLoaded) {
+  //     if (isAuthenticated) {
+  //       router.replace("/dashboard"); // Navigate only after app is ready
+  //     } else if (isFirstTime === 'false') {
+  //       router.replace("/sign-in");
+  //     }
+  //   }
+  // }, [appIsReady, isAuthenticated]); // Run when appIsReady or isAuthenticated changes
 
-  if (showSplash || !fontsLoaded || !appIsReady) {
+  if (!fontsLoaded || !appIsReady) {
     return (
       <View className="
       flex-1 
@@ -130,7 +125,6 @@ function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" options={{ title: 'Splashscreen' }} />
       {/* <Stack.Screen name="(tabs)" options={{ title: 'Tabs' }} /> */}
       <Stack.Screen name="sign-in" options={{ title: 'Sign In' }} />
       <Stack.Screen name="sign-up" options={{ title: 'Sign Up' }} />
@@ -143,6 +137,9 @@ function RootLayout() {
       <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
 
       <Stack.Screen name="cable" options={{ title: 'Cable' }} />
+      <Stack.Screen name="utility" options={{ title: 'Utility' }} />
+
+      <Stack.Screen name="investment-data" options={{ title: 'Investment data' }} />
     </Stack>
   );
 }

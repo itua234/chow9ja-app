@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import { 
     View, 
     Text, 
@@ -9,12 +9,32 @@ import {
 import { router } from "expo-router";
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from 'expo-status-bar';
 import PrimaryButton from "@/components/PrimaryButton";
 
-export default function index() {
+import { SvgXml } from "react-native-svg";
+import { groundforce_logo } from '@/util/svg';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/reducers/store';
+import { useFonts } from "expo-font";
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppDispatch } from '@/reducers/store';
+import { Provider, useDispatch} from 'react-redux';
+import { setUser, setLoading, setAppIsReady, setisAuthenticated } from '@/reducers/auth/authSlice';
+import {get_user} from "@/api"
+import { User } from "@/models/User";
+import * as SplashScreen from 'expo-splash-screen';
+
+export default function index() {
+    const dispatch = useDispatch<AppDispatch>();
+    const {
+        user,
+        isAuthenticated,
+        isLoading,
+        appIsReady
+    } = useSelector((state: RootState) => state.auth);
+      
     return (
         <>
         <StatusBar style="light" />
@@ -59,6 +79,7 @@ export default function index() {
         </View>
         </>
     );
+
 }
 
 const styles = StyleSheet.create({

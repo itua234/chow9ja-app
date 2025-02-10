@@ -30,6 +30,7 @@ import { RootState } from '@/reducers/store';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUser, setisAuthenticated } from '@/reducers/auth/authSlice';
+import CurrencySelector from '@/components/ui/CurrencySelector';
 
 export const DashboardQuickAction = ({ 
     onSendPress, 
@@ -303,6 +304,7 @@ const Dashboard = () => {
         }, 200); // Delay submission 
     };
     const handleRequest = () => {
+        router.push("/utility");
         // Navigate to request money screen
         //navigation.navigate('RequestMoney');
         console.log("request money");
@@ -406,8 +408,8 @@ const Dashboard = () => {
                             </View>
                         </RBSheet>
 
-                        {/* <View className="mt-5 flex-1 pb-5">
-                            {investments.length > 0 && (
+                        <View className="mt-5 flex-1 pb-5">
+                            {/* {investments.length > 0 && (
                                 <FlatList
                                     data={investments}
                                     renderItem={({item}) => <InvestmentCard data={item} />}
@@ -415,8 +417,13 @@ const Dashboard = () => {
                                     scrollEnabled={false}
                                     ListEmptyComponent={<Text>No investments found</Text>}
                                 />
-                            )}
-                        </View> */}
+                            )} */}
+                            <CurrencySelector 
+                                onPress={() => console.log("currency selector clicked")} 
+                                selectedCurrency="USD"
+                                selectedCountry={'US'}                            
+                            />
+                        </View>
 
                         
                     </View>

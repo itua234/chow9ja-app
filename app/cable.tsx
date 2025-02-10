@@ -10,7 +10,8 @@ import {
     StyleSheet,
     TouchableOpacity,
     FlatList,
-    Dimensions
+    Dimensions,
+    ActivityIndicator
 } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import PrimaryButton from "../components/PrimaryButton"
@@ -43,7 +44,7 @@ const Cable = () => {
     const [isLoading, setLoading] = useState<boolean>(false);
     const screenHeight = Dimensions.get('window').height;
     const [bottomSheetType, setBottomSheetType] = useState('provider');
-
+    const [isFetchingPackages, setIsFetchingPackages] = useState<boolean>(false);
 
     const [providers, setProviders] = useState<ProviderType[]>([]);
     const [packages, setPackages] = useState([]);
@@ -112,20 +113,66 @@ const Cable = () => {
             package: {
                 ...values.package,
                 name: item.biller_name,
-                item_code: item.item_code
+                item_code: item.item_code,
+                amount: item.amount
             },
         }));
         refRBSheet.current.close();
     };
     const fetchPackages = async (biller_code: string) => {
+        setIsFetchingPackages(true);
         try {
             const response = await fetch_bill_info(biller_code);
             setPackages(response.data?.results || []);
         } catch (error) {
             console.log(error);
             setPackages([]);
+        } finally {
+            setIsFetchingPackages(false);
         }
     };
+
+    useEffect(() => {
+            if (inputs.account.length === 10 && inputs.provider.biller_code) {
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
+                setErrors({});
+                
+                timeoutRef.current = setTimeout(async () => {
+                    try {
+                        setIsFetchingAccount(true);
+                        setAccountName('');
+                        const response = await fetch_account(
+                            inputs.account, 
+                            inputs.provider.biller_code
+                        );
+                        
+                        if (response.data?.results.account_name) {
+                            setAccountName(response.data.results.account_name);
+                            handleErrors('', 'account');
+                        } else {
+                            setAccountName('');
+                            handleErrors('Invalid account number', 'account');
+                        }
+                    } catch (error) {
+                        setAccountName('');
+                        handleErrors('Error verifying account', 'account');
+                    } finally {
+                        setIsFetchingAccount(false);
+                    }
+                }, 500);
+            } else if (inputs.account.length > 0 && inputs.account.length < 10) {
+                setAccountName('');
+                setErrors({});
+            }
+    
+            return () => {
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
+            };
+        }, [inputs.account, inputs.provider.biller_code]);
 
     const Send = async () => {
         setLoading(true);
@@ -174,9 +221,9 @@ const Cable = () => {
                         <View className="">
                             <Text className="text-[#1A1C1E] mb-2 font-primary">Select Package</Text>
                             <Pressable onPress={async () => {
-                                await fetchPackages(inputs.provider.biller_code);
                                 setBottomSheetType('package');
                                 refRBSheet.current.open();
+                                await fetchPackages(inputs.provider.biller_code);
                             }} className="border-2 border-[#EDF1F3] rounded-[15px] py-5 px-[15px] font-primary text-[#1A1C1E] text-[16px]">
                                 <Text className={`text-[16px] font-primary ${inputs.package.name !== "Click to select package" ? "text-[#1A1C1E]" : "text-[#6C7278]"}`}>
                                     {inputs.package.name}
@@ -198,7 +245,7 @@ const Cable = () => {
                         closeOnPressBack={true}
                         closeOnPressMask={true}
                         draggable={true}
-                        openDuration={500}
+                        openDuration={200}
                         height={screenHeight * 0.7}
                         customStyles={styles.bottomSheet}
                     >
@@ -209,23 +256,31 @@ const Cable = () => {
                                 </Text>
                             </View>
                             <View className="mt-5 flex-1 pb-5">
-                                <FlatList
-                                    data={bottomSheetType === 'provider' ? providers : packages}
-                                    keyExtractor={(item, index) => index.toString()}
-                                    renderItem={({ item }) => (
-                                        <TouchableOpacity 
-                                        onPress={() => bottomSheetType === 'provider' ? 
-                                            selectProvider(item) : 
-                                            selectPackage(item)
-                                        }
-                                            className="flex-row items-center px-[15px] mt-[10px] border-[2px] border-[#EDF1F3] py-[15px] active:bg-gray-50"
-                                        >
-                                            <Text className="text-[#6C7278] font-primary text-[16px]">
-                                                {bottomSheetType === 'provider' ? item.name : item?.biller_name}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    )}
-                                />
+                                {isFetchingPackages ? (
+                                    <>
+                                    <ActivityIndicator size="large" color="#121212" />
+                                    <Text className="flex-1 text-center font-primary">Loading.....</Text>
+                                    </>
+                                ): (
+                                    <FlatList
+                                        data={bottomSheetType === 'provider' ? providers : packages as any}
+                                        keyExtractor={(item, index) => index.toString()}
+                                        renderItem={({ item }) => (
+                                            <TouchableOpacity 
+                                            onPress={() => 
+                                                bottomSheetType === 'provider' 
+                                                    ? selectProvider(item)
+                                                    : selectPackage(item)
+                                            }
+                                                className="flex-row items-center px-[15px] mt-[10px] border-[2px] border-[#EDF1F3] py-[15px] active:bg-gray-50"
+                                            >
+                                                <Text className="text-[#6C7278] font-primary text-[16px]">
+                                                    {bottomSheetType === 'provider' ? item.name : item?.biller_name + " - " + item?.amount}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        )}
+                                    />
+                                )}
                             </View>
                         </View>
                     </RBSheet>
@@ -244,8 +299,8 @@ const styles = StyleSheet.create({
         wrapper: { backgroundColor: "rgba(74, 74, 75, 0.8)" },
         draggableIcon: { backgroundColor: "#F1F1F1", width: 50 },
         container: {
-            borderTopRightRadius: 60,
-            borderTopLeftRadius: 40,
+            borderTopRightRadius: 20,
+            borderTopLeftRadius: 20,
             backgroundColor: "white"
         }
     }

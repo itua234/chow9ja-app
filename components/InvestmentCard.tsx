@@ -5,38 +5,36 @@ import {arrow_up} from '../util/svg';
 import { 
     Investment  
 } from "@/util/types";
+import { router } from "expo-router";
 
 const InvestmentCard = ({ data }: {data: Investment}) => {
     return (
-        <Pressable onPress={() => {console.log("Card clicked", data);}}>
-            <View className="p-[8px] pr-[10px] mb-[10px] bg-white flex flex-row items-center rounded-[18px]">
-                <View className="">
+        <Pressable onPress={() => {
+            router.push({
+                pathname: "/investment-data",
+                params: { data: JSON.stringify(data) }
+            });
+        }}>
+            <View className="py-[12px] px-[10px] mb-[10px] bg-white flex-1 rounded-[20px]">
+                <View className="w-full relative">
                     <Image
-                        style={{height: 115, width: 115, borderRadius: 10}}
+                        style={{height: 130, width: "100%"}}
                         source={{uri: "https://docazystor1.blob.core.windows.net/multimedia/1736981694541-pexels-pixabay-259593.jpg"}}
                     />
-                </View>
-                <View className="flex flex-1 flex-col ml-4 h-full min-h-[120px] justify-between">
-                    <View className="flex flex-row">
-                        <Text numberOfLines={2} className="mr-2 text-[16px] font-primary flex-1">{data.name}</Text>
-                        <View>
-                            {
-                                data.status == "active" ?
-                                <Text className="font-primary text-[12px] shrink-0 bg-[gray] text-[green] py-[5px] px-[7px] rounded-[20px]">Invest Now</Text> :
-                                <Text className="font-primary text-[12px] shrink-0 bg-[red] py-[5px] px-[7px] rounded-[20px]">Sold out</Text>
-                            }
-                        </View>
+                    <View className="w-[46px] h-[46px] absolute bg-[#DC9D0B] flex-col items-center justify-center">
+                        <Text className="font-primary text-[9px] text-white">Returns</Text>
+                        <Text className="font-primary text-[16px] text-white">14%</Text>
                     </View>
-                    <Text className="font-primary text-[15px]">{data.returns}% {data.duration == 12 ? "p.a expected returns" : "returns in "+data.duration+" months"} </Text>
-                    <View className="flex-row justify-between">
-                        <View className="flex-col">
-                            <Text className="font-primary text-[16px]">{data.amount.toLocaleString()}</Text>
-                            <Text className="font-primary text-[12px]">at last trade</Text>
-                        </View>
-                        <View className="flex-col">
-                            <Text className="font-primary text-[16px]">11,241</Text>
-                            <Text className="font-primary text-[12px]">Investors</Text>
-                        </View>
+                </View>
+
+                <View className="flex-row justify-between mt-[15px]">
+                    <View className="flex-col">
+                        <Text className="font-primary text-[12px]">4 Bedroom Duplex</Text>
+                        <Text className="font-primary text-[16px]">{data.amount.toLocaleString()}</Text>
+                    </View>
+                    <View className="flex-col">
+                        <Text className="font-primary text-[16px]">Ipaja, Lagos State</Text>
+                        <Text className="font-primary text-[12px]">Adool Constructions Ltd.</Text>
                     </View>
                 </View>
             </View>
