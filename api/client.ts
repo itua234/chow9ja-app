@@ -21,8 +21,8 @@ const appToken = process.env.EXPO_PUBLIC_APP_TOKEN;
 const client = axios.create({
     //baseURL: "http://192.168.43.253:8080/api/v1/",  //Samsung S8
     //baseURL: "http://172.20.10.4:8080/api/v1/",
-    baseURL: "http://192.168.144.166:8080/api/v1/",  //Redmi
-    //baseURL: Platform.OS === 'ios' ? 'http://127.0.0.1:8080/api/v1/' : 'http://10.0.2.2:8080/api/v1/',
+    //baseURL: "http://192.168.144.166:8080/api/v1/",  //Redmi
+    baseURL: Platform.OS === 'ios' ? 'http://127.0.0.1:8080/api/v1/' : 'http://10.0.2.2:8080/api/v1/',
     timeout: 10000, // 10 seconds
     headers: {
         Accept: 'application/json',
@@ -54,7 +54,7 @@ const refresh_token = async (error: any) => {
                 console.log("token has been refreshed");
                 return client(originalRequest);
             } catch (refreshError) {
-                console.error('Token refresh failed:', refreshError);
+                console.log('Token refresh failed:', refreshError);
                 // Handle failed refresh (e.g., logout user)
                 await AsyncStorage.multiRemove(['user_token', 'refresh_token']);
                 // You might want to trigger a navigation to login here or handle logout

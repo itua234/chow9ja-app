@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import { Text, View, RefreshControl, FlatList, Platform, Pressable, ToastAndroid, StyleSheet, Share, Linking, Alert } from 'react-native';
+import { Text, View, RefreshControl, FlatList, Platform, Image, Pressable, ToastAndroid, StyleSheet, Share, Linking, Alert, Button } from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {eye, eye_off, copy, arrow_up, arrow_down, ellipsis, plus, wallet} from '../util/svg';
 import TransactionCard from "@/components/TransactionCard"
@@ -13,6 +13,7 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import PrimaryButton from "@/components/PrimaryButton"
 import CustomInput from "@/components/CustomInput"
 import AddFundModal from '@/components/AddFundModal';
+import CustomSlider from '@/components/ui/CustomSlider';
 import { WebViewNavigation } from 'react-native-webview';
 import { 
     QuickActionProps, 
@@ -361,6 +362,48 @@ const Dashboard = () => {
                             onRequestPress={handleRequest}
                             onMorePress={handleMore}
                         />
+                        <View style={{ flex: 1 }}>
+                            <CustomSlider
+                                autoSlideInterval={2000} // 5 seconds auto-slide
+                                showPagination={true} // Show pagination dots
+                                activeDotStyle={{ backgroundColor: '#121212' }} // Customize active dot
+                            >
+                                <View style={styles.slide}>
+                                    <View>
+                                        <Text style={styles.title} className="font-primary">Recently paid</Text>
+                                        <Text style={styles.description} className="font-primary">
+                                            Quickly pay recent payees
+                                        </Text>
+                                    </View>
+                                    <Pressable onPress={() => alert('Started!')}>
+                                        <Text>Get started</Text>
+                                    </Pressable>
+                                </View>
+                                <View style={styles.slide}>
+                                    <View>
+                                        <Text style={styles.title} className="font-primary">Upcoming Bills</Text>
+                                        <Text style={styles.description} className="font-primary">
+                                            Check your upcoming payments
+                                        </Text>
+                                    </View>
+                                    <Pressable onPress={() => alert('Started!')}>
+                                        <Text>Get started</Text>
+                                    </Pressable>
+                                </View>
+                                <View style={styles.slide}>
+                                    <View>
+                                        <Text style={styles.title} className="font-primary">Savings Goals</Text>
+                                        <Text style={styles.description} className="font-primary">
+                                            Track your savings progress
+                                        </Text>
+                                    </View>
+                                    <Pressable onPress={() => alert('Started!')}>
+                                        <Text>Get started</Text>
+                                    </Pressable>
+                                </View>
+                            </CustomSlider>
+                        </View>
+
                         <DashboardActivity
                             transactions={transactions}
                             onSeeAll={seeAllTransactions}
@@ -450,5 +493,26 @@ const styles = StyleSheet.create({
             borderTopLeftRadius: 40,
             backgroundColor: "white"
         }
-    }
+    },
+    slide: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 20,
+    },
+    title: {
+        fontSize: 18,
+    },
+    description: {
+        fontSize: 14,
+        color: '#6c757d',
+    },
+    image: {
+        width: 150,
+        height: 150,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
 } as any);
