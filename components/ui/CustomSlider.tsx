@@ -127,7 +127,8 @@ const styles = StyleSheet.create({
     },
     slidesWrapper: {
         flexDirection: 'row',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        overflow: "hidden",
     },
     slide: {
         // flexDirection: 'row',
@@ -157,7 +158,8 @@ const styles = StyleSheet.create({
         margin: 5,
     },
     activeDot: {
-        backgroundColor: '#121212',
+        //backgroundColor: '#121212',
+        backgroundColor: "#2373E9"   //#eaedf2
     },
 });
 

@@ -366,7 +366,7 @@ const Dashboard = () => {
                             <CustomSlider
                                 autoSlideInterval={2000} // 5 seconds auto-slide
                                 showPagination={true} // Show pagination dots
-                                activeDotStyle={{ backgroundColor: '#121212' }} // Customize active dot
+                                activeDotStyle={{ backgroundColor: '#eaedf2' }} // Customize active dot
                             >
                                 <View style={styles.slide}>
                                     <View>
@@ -375,8 +375,8 @@ const Dashboard = () => {
                                             Quickly pay recent payees
                                         </Text>
                                     </View>
-                                    <Pressable onPress={() => alert('Started!')}>
-                                        <Text>Get started</Text>
+                                    <Pressable onPress={() => alert('Started!')} className="bg-[#EAF2FF] p-[12px] rounded-[24px]">
+                                        <Text className="font-primary text-[13px]">Make a payment</Text>
                                     </Pressable>
                                 </View>
                                 <View style={styles.slide}>
@@ -386,8 +386,8 @@ const Dashboard = () => {
                                             Check your upcoming payments
                                         </Text>
                                     </View>
-                                    <Pressable onPress={() => alert('Started!')}>
-                                        <Text>Get started</Text>
+                                    <Pressable onPress={() => alert('Started!')} className="bg-[#EAF2FF] p-[12px] rounded-[24px]">
+                                        <Text className="font-primary text-[13px]">Make a payment</Text>
                                     </Pressable>
                                 </View>
                                 <View style={styles.slide}>
@@ -397,8 +397,8 @@ const Dashboard = () => {
                                             Track your savings progress
                                         </Text>
                                     </View>
-                                    <Pressable onPress={() => alert('Started!')}>
-                                        <Text>Get started</Text>
+                                    <Pressable onPress={() => alert('Started!')} className="bg-[#EAF2FF] p-[12px] rounded-[24px]">
+                                        <Text className="font-primary text-[13px]">Make a payment</Text>
                                     </Pressable>
                                 </View>
                             </CustomSlider>
@@ -499,14 +499,15 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: 'white',
-        padding: 20,
+        paddingVertical: 20,
+        paddingHorizontal: 15,
         borderRadius: 20,
     },
     title: {
-        fontSize: 18,
+        fontSize: 16,
     },
     description: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#6c757d',
     },
     image: {
