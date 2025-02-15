@@ -46,7 +46,7 @@ const refresh_token = async (error: any) => {
                 const { data } = await client.post(
                     '/auth/refresh-token', 
                     { refresh_token: refreshToken },
-                    { useAppToken: true }as CustomAxiosRequestConfig
+                    { useAppToken: true } as CustomAxiosRequestConfig
                 );
                 await AsyncStorage.setItem('user_token', data.results.token);
                 await AsyncStorage.setItem('refresh_token', data.results.refresh_token);
