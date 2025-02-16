@@ -32,6 +32,7 @@ import { RootState } from '@/reducers/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUser, setisAuthenticated } from '@/reducers/auth/authSlice';
 import CurrencySelector from '@/components/ui/CurrencySelector';
+import CustomRadio from '@/components/ui/CustomRadio';
 
 export const DashboardQuickAction = ({ 
     onSendPress, 
@@ -175,6 +176,32 @@ const Dashboard = () => {
     const [investments, setInvestments] = useState<Investment[]>([]);
     
     const refRBSheet = useRef<any>(null);
+    const subscriptionPlans = [
+        {
+            id: 1,
+            period: 'Yearly',
+            discount: '-66% discount',
+            price: '94.80',
+            frequency: 'every year'
+        },
+        {
+            id: 2,
+            period: 'Monthly',
+            discount: '-33% discount',
+            price: '12.99',
+            frequency: 'per month'
+        },
+        {
+            id: 3,
+            period: 'Weekly',
+            discount: '-10% discount',
+            price: '4.99',
+            frequency: 'per week'
+        }
+    ];
+    // Then in your component:
+    const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+    const [isSelected, setIsSelected] = useState<boolean>(false);
 
     const [inputs, setInputs] = useState({amount: "20500"});
     const [msg, setMsg] = useState<string>('');
@@ -403,6 +430,17 @@ const Dashboard = () => {
                                 </View>
                             </CustomSlider>
                         </View>
+
+                        {subscriptionPlans.map((plan, index) => (
+                            <CustomRadio
+                                key={index}
+                                selected={selectedPlan === plan.id}
+                                onSelect={() => setSelectedPlan(plan.id)}
+                                size={24}  // optional
+                                color="#007AFF"  // optional
+                                label={plan.id}
+                            />
+                        ))}
 
                         <DashboardActivity
                             transactions={transactions}
