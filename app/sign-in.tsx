@@ -89,35 +89,38 @@ const Signin = () => {
         setLoading(true);
         //dispatch(clearErrors());
         handleMessage('');
-        setTimeout(() => {
-            login(inputs.email, inputs.password)
-            .then(async (res: AxiosResponse<LoginResponse>) => {
-                setLoading(false);
+        //setTimeout(async () => {
+            try {
+                await new Promise(resolve => setTimeout(resolve, 100)); // Create a delay
+                const res: AxiosResponse<LoginResponse> = await login(inputs.email, inputs.password);
                 const user: User = res.data?.results;
-                await storeData("user_token", user?.token);
-                await storeData("refresh_token", user?.refresh_token);
-                await storeData('isFirstTime', 'false');
+                // Store tokens and user data
+                await Promise.all([
+                    storeData("user_token", user?.token),
+                    storeData("refresh_token", user?.refresh_token),
+                    storeData('isFirstTime', 'false')
+                ]);
                 // Dispatch the user and set authentication status
                 dispatch(setUser(user));
                 dispatch(setisAuthenticated(true));
+                // Navigate to the dashboard
                 router.replace('/dashboard');
-            }).catch((error: AxiosError<any>) => {
+            } catch (error: any) {
                 dispatch(clearErrors());
                 handleMessage('');
-                setLoading(false); 
                 if (error.response) {
                     let errors = error.response.data.error;
                     if (errors) {
                         dispatch(setApiErrors(errors));
-                        //errors.email && handleErrors(errors.email, 'email');
-                        //errors.password && handleErrors(errors.password, 'password');
                     }
                     if (error.response.status === 400 || error.response.status === 401) {
                         handleMessage(error.response.data.message);
                     }
                 }
-            })
-        }, 100); // Delay submission 
+            } finally {
+                setLoading(false);
+            }
+        //}, 100); // Delay submission 
     }
 
     const onGooglePress = async () => {
