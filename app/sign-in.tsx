@@ -43,8 +43,7 @@ interface LoginResponse {
     error: boolean;
 }
 const Signin = () => {
-    const inputs = useSelector((state: RootState) => state.form.inputs);
-    const errors = useSelector((state: RootState) => state.form.errors);
+    const { inputs, errors } =  useSelector((state: RootState) => state.form);
     const dispatch = useDispatch<AppDispatch>();
     useEffect(() => {
         dispatch(resetForm()); // Reset form state when component mounts
@@ -79,9 +78,9 @@ const Signin = () => {
             }).start();
         };
     };
-    const handleErrors = (error: string, input: string) => {
-        dispatch(setError({field: input, error }));
-    }
+    // const handleErrors = (error: string, input: string) => {
+    //     dispatch(setError({field: input, error }));
+    // }
     const handleMessage = (message: string) => setMsg(message);
 
     const Login = async () => {
@@ -89,38 +88,36 @@ const Signin = () => {
         setLoading(true);
         //dispatch(clearErrors());
         handleMessage('');
-        //setTimeout(async () => {
-            try {
-                await new Promise(resolve => setTimeout(resolve, 100)); // Create a delay
-                const res: AxiosResponse<LoginResponse> = await login(inputs.email, inputs.password);
-                const user: User = res.data?.results;
-                // Store tokens and user data
-                await Promise.all([
-                    storeData("user_token", user?.token),
-                    storeData("refresh_token", user?.refresh_token),
-                    storeData('isFirstTime', 'false')
-                ]);
-                // Dispatch the user and set authentication status
-                dispatch(setUser(user));
-                dispatch(setisAuthenticated(true));
-                // Navigate to the dashboard
-                router.replace('/dashboard');
-            } catch (error: any) {
-                dispatch(clearErrors());
-                handleMessage('');
-                if (error.response) {
-                    let errors = error.response.data.error;
-                    if (errors) {
-                        dispatch(setApiErrors(errors));
-                    }
-                    if (error.response.status === 400 || error.response.status === 401) {
-                        handleMessage(error.response.data.message);
-                    }
+        try {
+            await new Promise(resolve => setTimeout(resolve, 100)); // Create a delay
+            const res: AxiosResponse<LoginResponse> = await login(inputs.email, inputs.password);
+            const user: User = res.data?.results;
+            // Store tokens and user data
+            await Promise.all([
+                storeData("user_token", user?.token),
+                storeData("refresh_token", user?.refresh_token),
+                storeData('isFirstTime', 'false')
+            ]);
+            // Dispatch the user and set authentication status
+            dispatch(setUser(user));
+            dispatch(setisAuthenticated(true));
+            // Navigate to the dashboard
+            router.replace('/dashboard');
+        } catch (error: any) {
+            dispatch(clearErrors());
+            handleMessage('');
+            if (error.response) {
+                let errors = error.response.data.error;
+                if (errors) {
+                    dispatch(setApiErrors(errors));
                 }
-            } finally {
-                setLoading(false);
+                if (error.response.status === 400 || error.response.status === 401) {
+                    handleMessage(error.response.data.message);
+                }
             }
-        //}, 100); // Delay submission 
+        } finally {
+            setLoading(false);
+        }
     }
 
     const onGooglePress = async () => {
