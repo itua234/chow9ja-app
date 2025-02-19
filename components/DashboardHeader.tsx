@@ -61,7 +61,7 @@ const DashboardHeader = () => {
                     <SvgXml xml={headphones} width={40} height={40} /> // Fallback SVG
                 )}
             </View>
-            <View className="bg-[white] flex-row px-[10px] rounded-[25px] h-[50px] py-[5px]">
+            <View className="bg-[white] flex-row px-[10px] rounded-[25px] h-[40px] py-[5px]">
                 <Animated.View 
                     className="rounded-[20px] mr-[10px]"
                     style={{
@@ -72,7 +72,7 @@ const DashboardHeader = () => {
                     }}
                 >
                     <Pressable 
-                        className="h-[40px] px-[10px] flex items-center justify-center"
+                        className="h-full px-[10px] flex items-center justify-center"
                         onPress={() => handlePress('Finance')}
                     >
                         <Text className="font-primary text-[14px]">Finance</Text>
@@ -88,7 +88,7 @@ const DashboardHeader = () => {
                     }}
                 >
                     <Pressable 
-                        className="h-[40px] px-[10px] flex items-center justify-center"
+                        className="h-full px-[10px] flex items-center justify-center"
                         onPress={() => handlePress('Wallet')}
                     >
                         <Text className="font-primary text-[14px]">Wallet</Text>
