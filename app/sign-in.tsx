@@ -86,7 +86,7 @@ const Signin = () => {
     const Login = async () => {
         Keyboard.dismiss();
         setLoading(true);
-        //dispatch(clearErrors());
+        dispatch(clearErrors());
         handleMessage('');
         try {
             await new Promise(resolve => setTimeout(resolve, 100)); // Create a delay
@@ -104,8 +104,6 @@ const Signin = () => {
             // Navigate to the dashboard
             router.replace('/dashboard');
         } catch (error: any) {
-            dispatch(clearErrors());
-            handleMessage('');
             if (error.response) {
                 let errors = error.response.data.error;
                 if (errors) {
@@ -119,6 +117,15 @@ const Signin = () => {
             setLoading(false);
         }
     }
+
+    const isFormValid = () => {
+        // Check that both fields have values
+        const hasValues = !!inputs.email && !!inputs.password;
+        // Check that no errors exist for any input
+        const hasNoErrors = !Object.values(errors).some(error => !!error);
+        
+        return hasValues && hasNoErrors;
+    };
 
     const onGooglePress = async () => {
         try {
@@ -289,6 +296,7 @@ const Signin = () => {
                                 isLoading={isLoading} 
                                 action={Login}
                                 disabled={isLoading}
+                                //disabled={isLoading || !isFormValid()}
                             />
 
                             <Pressable onPress={() => router.push('/forgot-password')}>
