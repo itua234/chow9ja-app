@@ -90,7 +90,7 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
                             style={[
                                 styles.slide,
                                 slideContainerStyle,
-                                { width: screenWidth - 35 },
+                                { width: screenWidth - 35, overflow: 'hidden' },
                             ]}
                         >
                             {slide}
@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        overflow: 'hidden', 
     },
     slidesWrapper: {
         flexDirection: 'row',
@@ -136,7 +137,8 @@ const styles = StyleSheet.create({
         // alignItems: 'center',
         // backgroundColor: 'white',
         //padding: 20,
-        //borderRadius: 20,
+        borderRadius: 20,
+        overflow: 'hidden'
     },
     title: {
         fontSize: 18,
