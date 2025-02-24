@@ -5,7 +5,7 @@ import { Text, View, SafeAreaView, ScrollView, Keyboard,
 import {SvgXml} from "react-native-svg";
 import SocialLoginButton from "@/components/SocialLoginButton";
 import CustomInput from "@/components/CustomInput";
-import {logo, googleIcon, facebookIcon} from '@/util/svg';
+import {logo, googleIcon, facebookIcon, appleIcon} from '@/util/svg';
 import PrimaryButton from "@/components/PrimaryButton";
 import {login, google_login} from "@/api"
 import {storeData} from "@/util/helper"
@@ -142,12 +142,16 @@ const Signin = () => {
                 google_login(payload)
                 .then(async (res: AxiosResponse<LoginResponse>) => {
                     const user: User = res.data?.results;
-                    await storeData("user_token", user?.token);
-                    await storeData("refresh_token", user?.refresh_token);
-                    await storeData('isFirstTime', 'false');
+                    // Store tokens and user data
+                    await Promise.all([
+                        storeData("user_token", user?.token),
+                        storeData("refresh_token", user?.refresh_token),
+                        storeData('isFirstTime', 'false')
+                    ]);
                     // Dispatch the user and set authentication status
                     dispatch(setUser(user));
                     dispatch(setisAuthenticated(true));
+                    // Navigate to the dashboard
                     router.replace('/dashboard');
                 }).catch((error: AxiosError<any>) => {
                     handleMessage('');
@@ -315,6 +319,15 @@ const Signin = () => {
                                 text="Continue with Facebook"
                                 onPress={onFacebookPress}
                             />
+                            {
+                                Platform.OS === "android" && (
+                                    <SocialLoginButton
+                                        icon={appleIcon}
+                                        text="Continue with Apple"
+                                        onPress={handleAppleSignIn}
+                                    />
+                                )
+                            }
                             {/* <AppleAuthentication.AppleAuthenticationButton
                                 buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
                                 buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
