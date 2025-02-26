@@ -1,5 +1,10 @@
 import { useEffect } from "react";
-import { View, Text, Pressable, Animated, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Pressable, Animated, StyleSheet, TouchableOpacity, Platform, UIManager } from "react-native";
+
+// Enable LayoutAnimation for Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 interface CustomRadioProps {
     onSelect: () => void;

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { client, CustomAxiosRequestConfig } from '../client';
 
 export const register = (inputs: { [key: string]: string }): Promise<any> => {
@@ -59,4 +60,9 @@ export const verify_code =  (email: string, code: string, purpose: string): Prom
         `auth/email/${email}/${code}/${purpose}/verify-code`,
         { useAppToken: true } as CustomAxiosRequestConfig
     );
+}
+
+export const get_flags = (): Promise<any> => {
+    //return axios.get("https://flagcdn.com/en/codes.json");
+    return axios.get("https://country-code-au6g.vercel.app/Country.json");
 }

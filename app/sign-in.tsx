@@ -328,14 +328,6 @@ const Signin = () => {
                                     />
                                 )
                             }
-                            {/* <AppleAuthentication.AppleAuthenticationButton
-                                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-                                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                                cornerRadius={5}
-                                style={{ width: 200, height: 44 }}
-                                onPress={handleAppleSignIn}
-                            /> */}
-
                             <View className="mt-[15px] flex-row justify-center">
                                 <Text className="font-primary mr-[5px]">Don't have an account?</Text>
                                 <Pressable onPress={() => router.push('/sign-up')}>
