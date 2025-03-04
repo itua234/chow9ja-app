@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Text, View, 
     SafeAreaView, ScrollView, TextInput, Image, Keyboard,
     KeyboardAvoidingView, TouchableOpacity,
@@ -21,8 +21,7 @@ import { RootState, AppDispatch } from '@/reducers/store';
 import { setInput, setError, clearErrors, setApiErrors, setInputAndValidate, resetForm } from '@/reducers/form/formSlice';
 
 const Signup = () => {
-    const inputs = useSelector((state: RootState) => state.form.inputs);
-    const errors = useSelector((state: RootState) => state.form.errors);
+    const { inputs, errors } = useSelector((state: RootState) => state.form);
     const dispatch = useDispatch<AppDispatch>();
     useEffect(() => {
         dispatch(resetForm()); // Reset form state when component mounts
@@ -40,7 +39,7 @@ const Signup = () => {
                 console.error("Error fetching countries:", error);
             }
         };
-        fetchCountries();
+        if (countries.length === 0) fetchCountries(); // Fetch only if countries are empty
     }, []);
 
     const [msg, setMsg] = useState<string>('');
@@ -58,7 +57,7 @@ const Signup = () => {
     };
 
     // Custom render function for countries
-    const renderCountry = (country: Country) => (
+    const renderCountry = useMemo(() => (country: Country) => (
         <>
             <Image className="w-[32px] h-[32px] rounded-full mr-[10px]"
                 source={{uri: `https://flagcdn.com/w320/${country.code.toLowerCase()}.png`}}
@@ -68,7 +67,7 @@ const Signup = () => {
             </Text>
             <Text className="text-[#6C7278] font-primary text-[16px] ml-[10px]">{country.dial_code}</Text>
         </>
-    );
+   ), []);
 
     const handleInputs = (name: string) => {
         return (value: string) => {
