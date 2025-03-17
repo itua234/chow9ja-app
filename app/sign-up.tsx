@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Text, View, 
     SafeAreaView, ScrollView, TextInput, Image, Keyboard,
-    KeyboardAvoidingView, TouchableOpacity,
+    KeyboardAvoidingView, TouchableOpacity, StyleSheet,
     Platform, Pressable, StatusBar } from 'react-native';
 import {SvgXml} from "react-native-svg";
 import {logo} from '@/util/svg';
@@ -19,6 +19,12 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/reducers/store';
 import { setInput, setError, clearErrors, setApiErrors, setInputAndValidate, resetForm } from '@/reducers/form/formSlice';
+import PhonePicker from '@/components/ui/PhonePicker';
+
+type PhonePickerRef = {
+    open: () => void;
+    close: () => void;
+}
 
 const Signup = () => {
     const { inputs, errors } = useSelector((state: RootState) => state.form);
@@ -41,6 +47,8 @@ const Signup = () => {
         };
         if (countries.length === 0) fetchCountries(); // Fetch only if countries are empty
     }, []);
+
+    const pickerRef = useRef<PhonePickerRef>(null);
 
     const [msg, setMsg] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -67,7 +75,7 @@ const Signup = () => {
             </Text>
             <Text className="text-[#6C7278] font-primary text-[16px] ml-[10px]">{country.dial_code}</Text>
         </>
-   ), []);
+    ), []);
 
     const handleInputs = (name: string) => {
         return (value: string) => {
@@ -191,7 +199,8 @@ const Signup = () => {
                                         className="flex-row items-center justify-center w-[110px] h-full border-r border-[#EDF1F3] "
                                         onPress={async () => {
                                             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-                                            setShowCountryPicker(!showCountryPicker)
+                                            //setShowCountryPicker(!showCountryPicker)
+                                            pickerRef.current?.open();
                                         }}
                                     >
                                         <View className="flex-row items-center">
@@ -237,13 +246,23 @@ const Signup = () => {
                         <CustomPicker
                             modalVisible={showCountryPicker}
                             animationType="slide"
-                            title="Select a Country"
+                            title="Select country or region"
                             setModalVisible={setShowCountryPicker}
                             data={countries}
                             onSelect={onSelectCountry}
                             searchPlaceholder="Search country..."
                             searchKeys={['name', 'code']} // Search by both name and code
                             renderItem={countries.length ? renderCountry : () => <Text>Loading...</Text>}
+                        />
+
+                        <PhonePicker
+                            ref={pickerRef}
+                            title="Select Option"
+                            data={countries}
+                            onSelect={onSelectCountry}
+                            displayKey="name"
+                            searchPlaceholder="Search options..."
+                            searchKeys={['name', 'code']}
                         />
 
                         <View className="mt-auto pb-4">
@@ -263,7 +282,7 @@ const Signup = () => {
 
 }
 
-export default Signup;
+export default Signup;   
 
 // import React, { useState, useEffect, useRef } from 'react';
 // import { 
