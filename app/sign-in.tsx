@@ -18,6 +18,7 @@ import {
     isSuccessResponse,
     statusCodes
 } from '@react-native-google-signin/google-signin';
+//import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/reducers/store';
 import { setError, clearErrors, setApiErrors, setInputAndValidate, resetForm } from '@/reducers/form/formSlice';
@@ -82,6 +83,7 @@ const Signin = () => {
     //     dispatch(setError({field: input, error }));
     // }
     const handleMessage = (message: string) => setMsg(message);
+    //const { handleGoogleSignIn } = useGoogleSignIn(handleMessage);
 
     const Login = async () => {
         Keyboard.dismiss();

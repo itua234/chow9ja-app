@@ -52,6 +52,8 @@ export default function index() {
             dispatch(setAppIsReady(true));
             dispatch(setisAuthenticated(true));
             dispatch(setLoading(false));
+            // Initialize socket connection
+            //socketService.initialize(user);
           }
         }catch (error) {
           console.log('Error checking auth status:', error);
@@ -60,6 +62,12 @@ export default function index() {
           dispatch(setLoading(false));
         }
     };
+    // Cleanup socket connection on unmount
+    useEffect(() => {
+        return () => {
+            //socketService.disconnect();
+        };
+    }, []);
     useEffect(() => {
         // Redirect based on `isFirstTime` and `isAuthenticated`
         if (appIsReady && isFirstTime === "false") {
